@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CS Fundamentos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:   #111110;
+  --bg1:  #191918;
+  --bg2:  #212120;
+  --bg3:  #2a2a28;
+  --line: rgba(255,255,255,0.07);
+  --line2:rgba(255,255,255,0.12);
+  --t1:   #e8e5e0;
+  --t2:   #8a8880;
+  --t3:   #555350;
+  --acc:  #c8b99a;   /* único acento — bege quente */
+  --acc2: rgba(200,185,154,0.12);
+  --acc3: rgba(200,185,154,0.06);
+  --ok:   #6b9e78;
+  --ok2:  rgba(107,158,120,0.12);
+  --err:  #9e6b6b;
+  --err2: rgba(158,107,107,0.12);
+  --mono:'SF Mono','Fira Code','Cascadia Code',ui-monospace,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --r:6px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;overflow:hidden}
+
+/* SIDEBAR */
+#sb{width:210px;flex-shrink:0;background:var(--bg1);border-right:1px solid var(--line);height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+#sb::-webkit-scrollbar{width:2px}
+#sb::-webkit-scrollbar-thumb{background:var(--bg3)}
+#sb-logo{padding:1.2rem 1rem .8rem;border-bottom:1px solid var(--line)}
+#sb-logo h1{font-size:12px;font-weight:600;color:var(--t1);letter-spacing:.3px}
+#sb-logo p{font-size:11px;color:var(--t3);margin-top:2px}
+.sb-section{padding:.5rem 0;border-bottom:1px solid var(--line)}
+.sb-section-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:6px 1rem 4px}
+.sb-btn{width:100%;text-align:left;padding:7px 1rem;font-size:12px;color:var(--t2);background:transparent;border:none;cursor:pointer;transition:all .1s;display:flex;align-items:center;gap:8px;line-height:1.3}
+.sb-btn:hover{background:var(--bg2);color:var(--t1)}
+.sb-btn.active{background:var(--acc3);color:var(--t1);border-left:1.5px solid var(--acc)}
+.sb-btn .num{font-size:10px;color:var(--t3);margin-left:auto;font-family:var(--mono)}
+
+/* MAIN */
+#main{flex:1;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+#topbar{padding:.7rem 1.5rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:1rem;background:var(--bg1);flex-shrink:0}
+#tb-title{font-size:13px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tb-count{font-size:11px;color:var(--t3);font-family:var(--mono);flex-shrink:0}
+.tb-nav{padding:5px 12px;font-size:11px;border:1px solid var(--line2);border-radius:var(--r);background:transparent;color:var(--t2);cursor:pointer;transition:all .1s;flex-shrink:0}
+.tb-nav:hover{background:var(--bg2);color:var(--t1)}
+.tb-nav:disabled{opacity:.3;cursor:default}
+.key-hint{font-size:10px;color:var(--t3);display:flex;gap:6px;align-items:center;flex-shrink:0}
+.k{background:var(--bg2);border:1px solid var(--line2);border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:10px}
+
+/* PROGRESS */
+#prog-bar{height:1px;background:var(--bg3);flex-shrink:0}
+#prog-fill{height:100%;background:var(--acc);transition:width .3s}
+
+/* CONTENT */
+#content{flex:1;overflow-y:auto;padding:2rem 2.5rem 3rem}
+#content::-webkit-scrollbar{width:3px}
+#content::-webkit-scrollbar-thumb{background:var(--bg3)}
+.slide{display:none}
+.slide.active{display:block}
+
+/* TYPOGRAPHY */
+h2.sh{font-size:22px;font-weight:500;margin-bottom:.4rem;line-height:1.3;color:var(--t1)}
+h2.sh em{color:var(--acc);font-style:normal}
+.sub{font-size:14px;color:var(--t2);margin-bottom:2rem;line-height:1.6}
+h3.h3{font-size:13px;font-weight:600;color:var(--t1);margin:1.5rem 0 .6rem;text-transform:uppercase;letter-spacing:.5px}
+p.p{font-size:14px;color:var(--t2);line-height:1.75;margin-bottom:.75rem}
+p.p strong{color:var(--t1);font-weight:500}
+
+/* TERM — explicar siglas/termos inline */
+.term-block{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r);padding:1rem 1.2rem;margin:.75rem 0}
+.term-block .tb-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin-bottom:.5rem;font-weight:600}
+.term-row{display:flex;gap:.75rem;align-items:baseline;margin:.3rem 0}
+.term-code{font-family:var(--mono);font-size:12px;color:var(--t1);min-width:80px;flex-shrink:0}
+.term-desc{font-size:13px;color:var(--t2);line-height:1.5}
+
+/* BOXES */
+.box{border-radius:var(--r);padding:1rem 1.2rem;margin:.75rem 0}
+.box-def{background:var(--bg2);border:1px solid var(--line)}
+.box-acc{background:var(--acc3);border:1px solid rgba(200,185,154,0.18)}
+.box-ok{background:var(--ok2);border:1px solid rgba(107,158,120,0.2)}
+.box-warn{background:rgba(158,140,107,0.08);border:1px solid rgba(158,140,107,0.2)}
+.box-err{background:var(--err2);border:1px solid rgba(158,107,107,0.2)}
+.box-label{font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;margin-bottom:.5rem}
+.box-acc .box-label{color:var(--acc)}
+.box-ok .box-label{color:var(--ok)}
+.box-err .box-label{color:var(--err)}
+.box-warn .box-label{color:#a89470}
+.box-def .box-label{color:var(--t3)}
+.box p,.box li{font-size:13px;color:var(--t2);line-height:1.7}
+.box strong{color:var(--t1);font-weight:500}
+.box ul{padding-left:1.2rem}
+
+/* ANALOGY */
+.analogy{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin:.75rem 0;display:flex;gap:.9rem;align-items:flex-start}
+.ana-icon{font-size:22px;flex-shrink:0;line-height:1}
+.ana-text{font-size:13px;color:var(--t2);line-height:1.7}
+.ana-text strong{color:var(--t1);font-weight:500}
+
+/* CODE */
+.code-wrap{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:.75rem 0}
+.code-header{padding:7px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.code-lang{font-size:10px;font-family:var(--mono);color:var(--t3);background:var(--bg3);padding:2px 7px;border-radius:3px;flex-shrink:0}
+.code-title{font-size:11px;color:var(--t3)}
+.code-body{padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.85}
+.code-body pre{white-space:pre;word-break:normal}
+/* syntax */
+.cm{color:var(--t3)}
+.ck{color:#8fa8c8}
+.cs{color:#8fae8a}
+.cn{color:#c8a98a}
+.cf{color:var(--t1)}
+.co{color:#9a8fc8}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.75rem;margin:.75rem 0}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin:.75rem 0}
+
+/* COMPARE TABLE */
+.ctab{width:100%;border-collapse:collapse;font-size:13px;margin:.75rem 0}
+.ctab th{text-align:left;padding:8px 12px;color:var(--t3);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line2)}
+.ctab td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--t2);vertical-align:top}
+.ctab td:first-child{color:var(--t1);font-weight:500;font-family:var(--mono);font-size:12px}
+.ctab tr:last-child td{border-bottom:none}
+
+/* DIAGRAM */
+.diag{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:.75rem 0}
+.dn{padding:6px 12px;border-radius:var(--r);font-size:12px;font-weight:500;border:1px solid var(--line2);background:var(--bg2);color:var(--t2);text-align:center}
+.dn.acc{border-color:rgba(200,185,154,0.3);background:var(--acc3);color:var(--acc)}
+.dn.ok{border-color:rgba(107,158,120,0.3);background:var(--ok2);color:var(--ok)}
+.da{font-size:14px;color:var(--t3);padding:0 8px}
+
+/* MEM VIS */
+.mem-vis{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0}
+.mem-col-title{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);margin-bottom:.4rem}
+.mem-stack{display:flex;flex-direction:column;gap:3px}
+.mc{padding:6px 10px;border-radius:4px;font-family:var(--mono);font-size:11px}
+.mc-a{background:rgba(143,168,200,0.1);border:1px solid rgba(143,168,200,0.2);color:#8fa8c8}
+.mc-b{background:rgba(107,158,120,0.1);border:1px solid rgba(107,158,120,0.2);color:var(--ok)}
+.mc-free{background:var(--bg2);border:1px dashed var(--line2);color:var(--t3)}
+
+/* SORT VIS */
+.sort-bars{display:flex;align-items:flex-end;gap:3px;height:90px;margin:.75rem 0;padding:0 2px}
+.sb{border-radius:3px 3px 0 0;transition:height .2s,background .2s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-size:10px;font-weight:600;flex:1}
+.sb-def{background:rgba(143,168,200,0.15);color:#8fa8c8;border:1px solid rgba(143,168,200,0.2)}
+.sb-cmp{background:rgba(200,185,154,0.15);color:var(--acc);border:1px solid rgba(200,185,154,0.25)}
+.sb-done{background:rgba(107,158,120,0.15);color:var(--ok);border:1px solid rgba(107,158,120,0.2)}
+.sb-piv{background:rgba(158,107,107,0.15);color:var(--err);border:1px solid rgba(158,107,107,0.2)}
+.sort-ctrl{display:flex;gap:6px;flex-wrap:wrap;margin:.5rem 0}
+.sc-btn{padding:5px 11px;font-size:11px;border:1px solid var(--line2);border-radius:var(--r);background:transparent;cursor:pointer;color:var(--t2);transition:all .1s}
+.sc-btn:hover{background:var(--bg2);color:var(--t1)}
+.sort-info{font-size:11px;color:var(--t3);min-height:16px;margin-top:4px;font-family:var(--mono)}
+
+/* BIG-O TABLE */
+.bo-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.bo-row:last-child{border-bottom:none}
+.bo-tag{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:3px;min-width:88px;text-align:center;flex-shrink:0}
+.bo-info{flex:1}
+.bo-info .name{font-size:12px;font-weight:500;color:var(--t1)}
+.bo-info .ex{font-size:11px;color:var(--t3)}
+.bo-bar-wrap{width:120px;flex-shrink:0}
+.bo-bar{height:4px;border-radius:2px}
+
+/* QUIZ */
+.quiz-q{margin-bottom:1.75rem}
+.quiz-q p{font-size:14px;font-weight:500;margin-bottom:.75rem;color:var(--t1)}
+.qopt{display:block;width:100%;text-align:left;padding:9px 13px;margin-bottom:5px;font-size:13px;border:1px solid var(--line2);border-radius:var(--r);background:transparent;cursor:pointer;transition:all .1s;color:var(--t2)}
+.qopt:hover{background:var(--bg2);color:var(--t1)}
+.qopt.ok{border-color:rgba(107,158,120,0.4);background:var(--ok2);color:var(--ok)}
+.qopt.err{border-color:rgba(158,107,107,0.4);background:var(--err2);color:var(--err)}
+.qfb{font-size:12px;padding:8px 11px;border-radius:var(--r);margin-top:5px;display:none;line-height:1.6}
+.qfb.show{display:block}
+.qfb.ok{background:var(--ok2);color:var(--ok)}
+.qfb.err{background:var(--err2);color:var(--err)}
+#quiz-result{display:none;padding:.9rem 1.2rem;border-radius:var(--r);background:var(--bg2);border:1px solid var(--line2);text-align:center;font-size:14px;font-weight:500;margin-top:1rem}
+
+/* STEPS LIST */
+ol.steps{list-style:none;counter-reset:st;padding:0;margin:.5rem 0}
+ol.steps li{counter-increment:st;display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.9rem;font-size:13px;color:var(--t2);line-height:1.6}
+ol.steps li::before{content:counter(st);background:var(--bg3);border:1px solid var(--line2);color:var(--t2);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+ol.steps li strong{color:var(--t1);font-weight:500}
+
+/* NAV FOOTER */
+.nav-foot{display:flex;justify-content:space-between;margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--line)}
+.nf-btn{padding:7px 14px;font-size:12px;border:1px solid var(--line2);border-radius:var(--r);background:transparent;cursor:pointer;color:var(--t2);transition:all .1s}
+.nf-btn:hover{background:var(--bg2);color:var(--t1)}
+</style>
+</head>
+<body>
+
+<nav id="sb">
+  <div id="sb-logo">
+    <h1>CS Fundamentos</h1>
+    <p>Go · Linux · Algoritmos</p>
+  </div>
+  <div id="sb-nav"></div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div id="tb-title">—</div>
+    <div class="key-hint"><span class="k">←</span><span class="k">→</span></div>
+    <span id="tb-count"></span>
+    <button class="tb-nav" id="btn-prev" onclick="prev()" disabled>← Anterior</button>
+    <button class="tb-nav" id="btn-next" onclick="next()" disabled>Próximo →</button>
+  </div>
+  <div id="prog-bar"><div id="prog-fill"></div></div>
+  <div id="content"></div>
+</div>
+
+<script>
+/* ─────────── SLIDES DATA ─────────── */
+const modules = [
+
+/* ═══════════════════════════════════════ INTRODUÇÃO */
+{id:'intro', label:'Introdução', slides:[
+{title:'O que você vai aprender',
+html:`
+<h2 class="sh">CS Fundamentos — <em>por onde começar</em></h2>
+<p class="sub">Um guia direto ao ponto sobre como computadores realmente funcionam</p>
+
+<div class="analogy">
+  <div class="ana-icon">🗺️</div>
+  <div class="ana-text">
+    Este curso existe porque <strong>saber usar uma linguagem de programação é diferente de entender o que acontece por baixo</strong>. Você pode dirigir um carro sem saber como o motor funciona — mas se souber, você dirige melhor, diagnostica problemas, e não fica perdido quando algo quebra.
+  </div>
+</div>
+
+<h3 class="h3">O que está neste curso</h3>
+<div class="g2">
+  <div class="box box-def"><div class="box-label" style="color:var(--t3)">01 — Sistema de arquivos</div><p>Como o Linux guarda seus arquivos, o que é um inode, como funcionam permissões e links.</p></div>
+  <div class="box box-def"><div class="box-label" style="color:var(--t3)">02 — Processos e threads</div><p>O que acontece quando você roda um programa, como o SO alterna entre processos, o que são sinais.</p></div>
+  <div class="box box-def"><div class="box-label" style="color:var(--t3)">03 — Memória</div><p>Onde vivem suas variáveis, a diferença entre stack e heap, o que é um ponteiro.</p></div>
+  <div class="box box-def"><div class="box-label" style="color:var(--t3)">04 — Rede</div><p>Como dados viajam pela internet, o que é TCP/IP, DNS, HTTP e como abrir uma conexão do zero.</p></div>
+  <div class="box box-def"><div class="box-label" style="color:var(--t3)">05 — Estruturas de dados</div><p>Arrays, listas, filas, pilhas, mapas e árvores — quando usar cada um.</p></div>
+  <div class="box box-def"><div class="box-label" style="color:var(--t3)">06 — Algoritmos e complexidade</div><p>Os três algoritmos de ordenação e como medir se seu código é rápido ou lento.</p></div>
+</div>
+
+<div class="box box-acc">
+  <div class="box-label">Como usar este material</div>
+  <p>Cada módulo tem: <strong>conceito explicado em português simples → o que o termo significa → exemplos em Go → exercício prático → 📝 anote no caderno</strong>. Navegue com as setas do teclado (← →) ou pelo menu lateral. Escreva tudo que aprender — anotar é fixar.</p>
+</div>`},
+
+{title:'Glossário de termos gerais',
+html:`
+<h2 class="sh">Termos que aparecem <em>em todo lugar</em></h2>
+<p class="sub">Antes de qualquer coisa, esses termos vão aparecer no curso inteiro</p>
+
+<div class="term-block">
+  <div class="tb-label">Runtime</div>
+  <div class="term-row"><span class="term-code">runtime</span><span class="term-desc">Significa "em tempo de execução" — quando o programa está rodando. O oposto é "compile time" (quando o código está sendo compilado). Ex: "alocação em runtime" = você reserva memória enquanto o programa roda.</span></div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Kernel</div>
+  <div class="term-row"><span class="term-code">kernel</span><span class="term-desc">O núcleo do sistema operacional. É o programa que controla o hardware (memória, CPU, disco, rede) e serve de intermediário entre seus programas e a máquina. Você não fala com o kernel diretamente — faz chamadas de sistema (syscalls).</span></div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Syscall / System call</div>
+  <div class="term-row"><span class="term-code">syscall</span><span class="term-desc">Quando seu programa pede algo ao kernel. Abrir um arquivo, criar uma conexão de rede, criar um processo — tudo passa por syscalls. Em Go isso fica escondido atrás de pacotes como os, net, etc — mas acontece o tempo todo.</span></div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Buffer</div>
+  <div class="term-row"><span class="term-code">buffer</span><span class="term-desc">Uma área temporária de memória usada para guardar dados antes de processá-los. Ex: quando você lê um arquivo, os dados vão para um buffer antes de aparecer na tela. Evita ler o disco byte por byte.</span></div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Overhead</div>
+  <div class="term-row"><span class="term-code">overhead</span><span class="term-desc">O custo extra que uma operação tem além do trabalho útil. Ex: "criar uma thread tem overhead" significa que criar a thread em si gasta tempo e memória, antes mesmo de ela fazer qualquer trabalho.</span></div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Race condition</div>
+  <div class="term-row"><span class="term-code">race condition</span><span class="term-desc">Bug que acontece quando duas threads/processos modificam o mesmo dado ao mesmo tempo e o resultado depende de quem chega primeiro. O nome vem de "corrida" — quem chegar primeiro muda o resultado.</span></div>
+</div>`}
+]},
+
+/* ═══════════════════════════════════════ SISTEMA DE ARQUIVOS */
+{id:'fs', label:'Sistema de arquivos', slides:[
+{title:'O que é o sistema de arquivos',
+html:`
+<h2 class="sh">Sistema de <em>arquivos</em></h2>
+<p class="sub">Como o Linux organiza e rastreia tudo que existe no disco</p>
+
+<div class="analogy">
+  <div class="ana-icon">📚</div>
+  <div class="ana-text">
+    Pensa numa biblioteca. Cada livro tem um <strong>número de tombo colado na lombada</strong> — esse é o inode. O catálogo na entrada diz "O Senhor dos Anéis → tombo 4821" — esse é o diretório. O livro em si é o arquivo. Você pode colocar o mesmo tombo em dois catálogos com nomes diferentes — hard link.
+  </div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Termos do módulo</div>
+  <div class="term-row"><span class="term-code">inode</span><span class="term-desc">Index Node. A ficha técnica de um arquivo: dono, grupo, tamanho, timestamps, permissões, e onde os dados ficam no disco. O nome do arquivo NÃO está aqui.</span></div>
+  <div class="term-row"><span class="term-code">diretório</span><span class="term-desc">Uma tabela que mapeia nomes de arquivos para números de inode. Não é um "lugar" físico — é uma lista de (nome → inode).</span></div>
+  <div class="term-row"><span class="term-code">hard link</span><span class="term-desc">Um segundo nome para o mesmo inode. Dois nomes, mesmo arquivo. Deletar um não apaga o outro.</span></div>
+  <div class="term-row"><span class="term-code">symlink</span><span class="term-desc">Symbolic link. Um arquivo especial que contém um caminho (texto). Se o original sumir, o symlink aponta para o nada e fica "quebrado".</span></div>
+  <div class="term-row"><span class="term-code">rwx</span><span class="term-desc">Read (leitura), Write (escrita), eXecute (execução). Os três tipos de permissão que existem para cada arquivo.</span></div>
+</div>
+
+<h3 class="h3">Como o inode funciona visualmente</h3>
+<div class="g3">
+  <div class="box box-def">
+    <div class="box-label" style="color:var(--t3)">Diretório (nomes)</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--t2)">
+      foto.jpg → 4821<br>
+      backup.jpg → 4821<br>
+      code.go → 4822
+    </div>
+    <p style="font-size:11px;color:var(--t3);margin-top:6px">foto e backup têm o mesmo inode — são o mesmo arquivo</p>
+  </div>
+  <div class="box box-def">
+    <div class="box-label" style="color:var(--t3)">Inode 4821 (metadados)</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--t2)">
+      dono: richardt<br>
+      grupo: users<br>
+      perms: rw-r--r--<br>
+      size: 2.4MB<br>
+      links: 2<br>
+      blocos: [101, 102]
+    </div>
+  </div>
+  <div class="box box-def">
+    <div class="box-label" style="color:var(--t3)">Disco (dados reais)</div>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--t2)">
+      bloco 101: [dados...]<br>
+      bloco 102: [dados...]<br>
+      bloco 103: livre
+    </div>
+  </div>
+</div>`},
+
+{title:'Permissões explicadas com calma',
+html:`
+<h2 class="sh">Permissões — <em>rwx explicado</em></h2>
+<p class="sub">Como ler e alterar quem pode fazer o que com um arquivo</p>
+
+<div class="term-block">
+  <div class="tb-label">O que é cada letra</div>
+  <div class="term-row"><span class="term-code">r = 4</span><span class="term-desc">Read — permissão de leitura. Pode abrir e ver o conteúdo do arquivo.</span></div>
+  <div class="term-row"><span class="term-code">w = 2</span><span class="term-desc">Write — permissão de escrita. Pode modificar o conteúdo do arquivo.</span></div>
+  <div class="term-row"><span class="term-code">x = 1</span><span class="term-desc">eXecute — permissão de execução. Pode rodar o arquivo como programa. Para diretórios, significa poder entrar nele (cd).</span></div>
+  <div class="term-row"><span class="term-code">-</span><span class="term-desc">Sem permissão. Um traço no lugar de r, w ou x significa que aquela permissão não existe.</span></div>
+</div>
+
+<h3 class="h3">Lendo uma linha do ls -l</h3>
+<div class="box box-def" style="font-family:var(--mono);font-size:13px;line-height:2">
+  <span style="color:var(--t2)">-</span><span style="color:#8fa8c8">rw-</span><span style="color:var(--acc)">r--</span><span style="color:var(--ok)">r--</span><span style="color:var(--t2)"> 2 richardt users 2.4M foto.jpg</span><br>
+  <span style="font-size:11px;color:var(--t3)">
+  ↑ tipo arquivo  ↑ dono       ↑ grupo      ↑ outros
+  </span>
+</div>
+<p class="p">O primeiro caractere indica o tipo: <strong>-</strong> arquivo normal, <strong>d</strong> diretório, <strong>l</strong> link simbólico. Depois vêm 3 grupos de 3 letras: dono, grupo, outros.</p>
+
+<h3 class="h3">chmod — alterando permissões</h3>
+<div class="box box-def" style="font-family:var(--mono);font-size:13px;line-height:2.2">
+  <div><span style="color:var(--t2)">chmod</span> <span style="color:var(--acc)">755</span> script.sh <span style="color:var(--t3) font-size:11px">→ rwxr-xr-x</span></div>
+  <div style="font-size:11px;color:var(--t3)">7 = r+w+x (4+2+1) — dono pode tudo</div>
+  <div style="font-size:11px;color:var(--t3)">5 = r+x   (4+0+1) — grupo pode ler e executar</div>
+  <div style="font-size:11px;color:var(--t3)">5 = r+x   (4+0+1) — outros podem ler e executar</div>
+</div>
+<div class="box box-def" style="font-family:var(--mono);font-size:13px;line-height:2.2">
+  <div><span style="color:var(--t2)">chmod</span> <span style="color:var(--acc)">644</span> doc.txt <span style="color:var(--t3)">→ rw-r--r--</span></div>
+  <div style="font-size:11px;color:var(--t3)">6 = r+w (4+2) — dono pode ler e escrever</div>
+  <div style="font-size:11px;color:var(--t3)">4 = r   (4+0) — grupo pode só ler</div>
+  <div style="font-size:11px;color:var(--t3)">4 = r   (4+0) — outros podem só ler</div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">bash</span><span class="code-title">comandos essenciais</span></div>
+  <div class="code-body"><pre>
+<span class="cm"># ver inode de cada arquivo (primeira coluna)</span>
+ls -li
+
+<span class="cm"># ver todos os detalhes de um arquivo</span>
+stat foto.jpg
+
+<span class="cm"># criar hard link — mesmo inode, dois nomes</span>
+ln original.txt copia.txt
+
+<span class="cm"># criar symlink — um atalho com caminho</span>
+ln -s /caminho/para/original atalho.txt
+
+<span class="cm"># alterar permissões</span>
+chmod 755 script.sh    <span class="cm"># rwxr-xr-x</span>
+chmod 644 doc.txt      <span class="cm"># rw-r--r--</span>
+
+<span class="cm"># alterar dono</span>
+chown richardt:users foto.jpg</pre></div>
+</div>`},
+
+{title:'Hard link vs Symlink — na prática',
+html:`
+<h2 class="sh">Hard link <em>vs</em> Symlink</h2>
+<p class="sub">O que acontece quando você deleta o arquivo original</p>
+
+<div class="g2">
+  <div>
+    <div class="box box-acc">
+      <div class="box-label">Hard link</div>
+      <p>Dois nomes, mesmo inode. <strong>Deletar um não apaga o arquivo</strong> — os dados só somem quando o contador de links chega a zero. Não funciona entre partições diferentes.</p>
+    </div>
+    <div class="diag">
+      <div class="dn">foto.jpg</div><div class="da">→</div>
+      <div class="dn acc">inode 4821</div>
+      <div class="da">←</div><div class="dn">backup.jpg</div>
+    </div>
+  </div>
+  <div>
+    <div class="box box-def">
+      <div class="box-label" style="color:var(--t3)">Symlink</div>
+      <p>Um arquivo que contém um caminho. <strong>Se o original sumir, o symlink aponta pro vazio</strong> e fica quebrado. Funciona entre partições. Funciona para diretórios.</p>
+    </div>
+    <div class="diag">
+      <div class="dn">atalho.jpg</div><div class="da">→ caminho →</div><div class="dn">foto.jpg</div>
+    </div>
+  </div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">bash</span><span class="code-title">teste que você pode rodar agora</span></div>
+  <div class="code-body"><pre>
+<span class="cm"># cria o arquivo original</span>
+echo <span class="cs">"dados importantes"</span> > original.txt
+
+<span class="cm"># cria hard link</span>
+ln original.txt hard.txt
+
+<span class="cm"># cria symlink</span>
+ln -s original.txt soft.txt
+
+<span class="cm"># veja os inodes — hard tem o mesmo, soft tem o seu próprio</span>
+ls -li
+
+<span class="cm"># deleta o original</span>
+rm original.txt
+
+cat hard.txt   <span class="cm"># ✅ funciona — o inode ainda existe</span>
+cat soft.txt   <span class="cm"># ❌ broken symlink</span></pre></div>
+</div>
+
+<div class="box box-ok">
+  <div class="box-label">Onde você já usa isso sem saber</div>
+  <p>Symlinks são a base dos dotfiles. Quando você faz <code>ln -s ~/dotfiles/nvim ~/.config/nvim</code>, você deixa sua config no repositório git mas o sistema enxerga no lugar certo. É o que ferramentas como stow fazem automaticamente.</p>
+</div>`},
+
+{title:'Atividades — Sistema de arquivos',
+html:`
+<h2 class="sh">Atividades — <em>Sistema de arquivos</em></h2>
+<p class="sub">Pratique no terminal — é assim que fixa</p>
+
+<h3 class="h3">🖥️ Faça agora no terminal</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">bash</span><span class="code-title">exercícios práticos</span></div>
+  <div class="code-body"><pre>
+<span class="cm"># 1. Crie um arquivo e veja o inode dele</span>
+echo "teste" > meuarquivo.txt
+ls -li meuarquivo.txt
+
+<span class="cm"># 2. Crie um hard link e confirme que tem o mesmo inode</span>
+ln meuarquivo.txt hardlink.txt
+ls -li meuarquivo.txt hardlink.txt
+
+<span class="cm"># 3. Crie um symlink e veja a diferença</span>
+ln -s meuarquivo.txt softlink.txt
+ls -li softlink.txt
+
+<span class="cm"># 4. Delete o original — o que acontece?</span>
+rm meuarquivo.txt
+cat hardlink.txt   <span class="cm"># funciona!</span>
+cat softlink.txt   <span class="cm"># quebrou!</span>
+
+<span class="cm"># 5. Pratique chmod</span>
+chmod 755 hardlink.txt   <span class="cm"># rwxr-xr-x</span>
+chmod 644 hardlink.txt   <span class="cm"># rw-r--r--</span>
+stat hardlink.txt</pre></div>
+</div>
+
+<h3 class="h3">🚀 Projeto: Ambiente Linux do zero</h3>
+<div class="box box-ok">
+  <div class="box-label">Projeto do módulo</div>
+  <p>Configure seu setup: terminal, zsh, dotfiles versionados no GitHub, aliases e scripts úteis. Aprenda Git de verdade, não só <code>git push</code>.</p>
+  <ul>
+    <li>Instale e configure zsh + oh-my-zsh</li>
+    <li>Crie um repo <code>dotfiles</code> e versione suas configs</li>
+    <li>Use symlinks para linkar configs do repo para ~/.config</li>
+    <li>Crie pelo menos 5 aliases úteis no .zshrc</li>
+  </ul>
+</div>
+
+<h3 class="h3">📝 Anote no caderno</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Escreva com suas palavras</div>
+  <ul>
+    <li>O que é um inode? O que ele guarda?</li>
+    <li>Por que o nome do arquivo NÃO fica no inode?</li>
+    <li>Hard link vs Symlink — desenhe a diferença</li>
+    <li>Copie a tabela: r=4, w=2, x=1 e pratique: 755, 644, 700, 600</li>
+    <li>O que acontece quando você faz <code>rm arquivo</code>? (dica: só remove um nome)</li>
+  </ul>
+</div>`}
+]},
+
+/* ═══════════════════════════════════════ PROCESSOS */
+{id:'proc', label:'Processos e threads', slides:[
+{title:'O que é um processo',
+html:`
+<h2 class="sh">Processos <em>e threads</em></h2>
+<p class="sub">Como o sistema operacional gerencia o que está rodando</p>
+
+<div class="analogy">
+  <div class="ana-icon">🏭</div>
+  <div class="ana-text">
+    Um <strong>processo</strong> é uma fábrica inteira — tem seu próprio espaço, suas próprias máquinas, seu próprio estoque. Duas fábricas não compartilham nada por padrão. Uma <strong>thread</strong> é um operário dentro da fábrica — compartilha o espaço com outros operários, mas tem seu próprio "roteiro de trabalho". Dois operários podem trabalhar ao mesmo tempo e se atrapalhar se pegarem a mesma ferramenta.
+  </div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Termos do módulo</div>
+  <div class="term-row"><span class="term-code">PID</span><span class="term-desc">Process ID. Número único que o kernel dá a cada processo quando ele nasce. O PID 1 é sempre o init (systemd no Linux moderno). Você usa o PID para mandar sinais e identificar processos.</span></div>
+  <div class="term-row"><span class="term-code">PPID</span><span class="term-desc">Parent PID. O PID do processo que criou este. Todo processo tem um pai (exceto o PID 1).</span></div>
+  <div class="term-row"><span class="term-code">fork</span><span class="term-desc">A syscall que cria um processo filho — uma cópia quase idêntica do pai. O filho herda memória, descritores de arquivo e variáveis (mas é uma cópia independente).</span></div>
+  <div class="term-row"><span class="term-code">scheduler</span><span class="term-desc">O agendador do kernel — decide qual processo roda em qual momento, e por quanto tempo (time slice).</span></div>
+  <div class="term-row"><span class="term-code">context switch</span><span class="term-desc">O ato de pausar um processo, salvar seu estado (registradores, onde estava no código) e restaurar o estado de outro. O custo disso é o "overhead" de ter múltiplos processos.</span></div>
+  <div class="term-row"><span class="term-code">signal / sinal</span><span class="term-desc">Uma notificação assíncrona enviada para um processo. É como uma interrupção — o processo para o que está fazendo para tratar o sinal. Você envia sinais com o comando kill.</span></div>
+</div>`},
+
+{title:'Sinais e como criar processos',
+html:`
+<h2 class="sh">Sinais e <em>fork</em></h2>
+<p class="sub">Como processos se comunicam e como novos processos nascem</p>
+
+<h3 class="h3">Os sinais mais usados</h3>
+<table class="ctab">
+  <tr><th>Sinal</th><th>Número</th><th>Significado</th><th>Pode ignorar?</th></tr>
+  <tr><td>SIGTERM</td><td>15</td><td>Pedido gentil de encerramento. O processo decide o que fazer (cleanup, salvar estado).</td><td>Sim</td></tr>
+  <tr><td>SIGKILL</td><td>9</td><td>Morte imediata. O kernel mata direto, sem dar chance de cleanup.</td><td>Não</td></tr>
+  <tr><td>SIGINT</td><td>2</td><td>Vem do Ctrl+C no terminal. Por padrão encerra, mas programas podem tratar.</td><td>Sim</td></tr>
+  <tr><td>SIGHUP</td><td>1</td><td>Originalmente: terminal fechou. Hoje: convencção para "recarregar configuração" em daemons.</td><td>Sim</td></tr>
+  <tr><td>SIGTSTP</td><td>20</td><td>Vem do Ctrl+Z. Pausa o processo (você retoma com fg ou bg).</td><td>Sim</td></tr>
+</table>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">bash</span><span class="code-title">trabalhando com processos</span></div>
+  <div class="code-body"><pre>
+<span class="cm"># listar processos com CPU e memória</span>
+ps aux
+
+<span class="cm"># árvore — ver quem criou quem</span>
+pstree -p
+
+<span class="cm"># meu PID atual (o do terminal)</span>
+echo $$
+
+<span class="cm"># matar de forma gentil (processo pode fazer cleanup)</span>
+kill -15 1234
+kill -SIGTERM 1234   <span class="cm"># mesma coisa</span>
+
+<span class="cm"># matar na força bruta (último recurso)</span>
+kill -9 1234
+
+<span class="cm"># mandar processo para background</span>
+comando &amp;    <span class="cm"># roda em background imediatamente</span>
+Ctrl+Z       <span class="cm"># pausa o processo</span>
+bg           <span class="cm"># continua em background</span>
+fg           <span class="cm"># traz de volta para foreground</span></pre></div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">tratando sinais no seu programa</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> (
+    <span class="cs">"fmt"</span>
+    <span class="cs">"os"</span>
+    <span class="cs">"os/signal"</span>
+    <span class="cs">"syscall"</span>
+)
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="cm">// canal que vai receber os sinais</span>
+    sigs := <span class="cf">make</span>(<span class="ck">chan</span> os.Signal, <span class="cn">1</span>)
+
+    <span class="cm">// registra quais sinais queremos capturar</span>
+    signal.<span class="cf">Notify</span>(sigs, syscall.SIGTERM, syscall.SIGINT)
+
+    fmt.<span class="cf">Println</span>(<span class="cs">"rodando... pressione Ctrl+C para encerrar"</span>)
+
+    <span class="cm">// bloqueia até receber um sinal</span>
+    sig := &lt;-sigs
+    fmt.<span class="cf">Printf</span>(<span class="cs">"recebi sinal: %v\n"</span>, sig)
+    fmt.<span class="cf">Println</span>(<span class="cs">"fazendo cleanup e saindo..."</span>)
+    <span class="cm">// aqui você fecharia conexões, salvaria estado, etc.</span>
+}</pre></div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">goroutines — processos leves do Go</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> (
+    <span class="cs">"fmt"</span>
+    <span class="cs">"sync"</span>
+    <span class="cs">"time"</span>
+)
+
+<span class="ck">func</span> <span class="cf">trabalho</span>(id <span class="ck">int</span>, wg *sync.WaitGroup) {
+    <span class="ck">defer</span> wg.Done()
+    fmt.<span class="cf">Printf</span>(<span class="cs">"goroutine %d: começou\n"</span>, id)
+    time.<span class="cf">Sleep</span>(<span class="cn">500</span> * time.Millisecond)
+    fmt.<span class="cf">Printf</span>(<span class="cs">"goroutine %d: terminou\n"</span>, id)
+}
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="ck">var</span> wg sync.WaitGroup
+
+    <span class="ck">for</span> i := <span class="cn">1</span>; i &lt;= <span class="cn">5</span>; i++ {
+        wg.Add(<span class="cn">1</span>)
+        <span class="ck">go</span> <span class="cf">trabalho</span>(i, &amp;wg) <span class="cm">// go = cria goroutine</span>
+    }
+
+    wg.Wait() <span class="cm">// espera todas terminarem</span>
+    fmt.<span class="cf">Println</span>(<span class="cs">"todas goroutines terminaram!"</span>)
+}</pre></div>
+</div>
+
+<div class="box box-acc">
+  <div class="box-label">📝 Anote no caderno</div>
+  <ul>
+    <li><strong>Processo</strong> = programa rodando com memória própria (cada tab do browser é um)</li>
+    <li><strong>Thread</strong> = sub-tarefa dentro de um processo, compartilha memória</li>
+    <li><strong>Goroutine</strong> = thread leve do Go (custa ~2KB vs ~1MB de uma thread do SO)</li>
+    <li><strong>PID</strong> = identificador único do processo (CPF do processo)</li>
+    <li><strong>fork()</strong> = cria processo filho, cópia do pai</li>
+    <li><strong>SIGTERM</strong> = pedido gentil pra parar / <strong>SIGKILL</strong> = morte imediata</li>
+    <li><strong>Context switch</strong> = SO pausando um processo pra rodar outro (tem custo!)</li>
+    <li><strong>WaitGroup</strong> = em Go, serve pra esperar N goroutines terminarem</li>
+  </ul>
+</div>`},
+
+{title:'Atividades — Processos',
+html:`
+<h2 class="sh">Atividades — <em>Processos e Threads</em></h2>
+<p class="sub">Pratique no terminal e no código — escreva, rode, anote</p>
+
+<h3 class="h3">🖥️ No terminal</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">bash</span><span class="code-title">faça agora no seu terminal</span></div>
+  <div class="code-body"><pre>
+<span class="cm"># 1. Veja seu PID atual</span>
+echo $$
+
+<span class="cm"># 2. Liste todos os processos com detalhes</span>
+ps aux | head -20
+
+<span class="cm"># 3. Veja a árvore de processos (quem criou quem)</span>
+pstree -p | head -30
+
+<span class="cm"># 4. Abra um processo em background e mate ele</span>
+sleep 300 &amp;
+echo "PID do sleep: $!"
+kill -SIGTERM $!
+
+<span class="cm"># 5. Explore /proc — o kernel expõe tudo aqui</span>
+ls /proc/$$/
+cat /proc/$$/status | head -10</pre></div>
+</div>
+
+<h3 class="h3">💻 Código em Go</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">exercício: crie 3 goroutines que contam de 1 a 5</span></div>
+  <div class="code-body"><pre>
+<span class="cm">// Exercício: complete este código</span>
+<span class="cm">// Cada goroutine deve imprimir: "Worker X: contando Y"</span>
+<span class="cm">// Use WaitGroup para esperar todas terminarem</span>
+
+<span class="ck">package</span> main
+
+<span class="ck">import</span> (
+    <span class="cs">"fmt"</span>
+    <span class="cs">"sync"</span>
+)
+
+<span class="ck">func</span> <span class="cf">worker</span>(id <span class="ck">int</span>, wg *sync.WaitGroup) {
+    <span class="cm">// TODO: defer wg.Done()</span>
+    <span class="cm">// TODO: loop de 1 a 5, imprimindo id e número</span>
+}
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="ck">var</span> wg sync.WaitGroup
+    <span class="cm">// TODO: criar 3 goroutines chamando worker</span>
+    wg.Wait()
+}</pre></div>
+</div>
+
+<h3 class="h3">🚀 Projeto: Leitor de processos do SO</h3>
+<div class="box box-ok">
+  <div class="box-label">Projeto do módulo</div>
+  <p>Crie um programa em Go que lê <code>/proc</code> no Linux e mostra: <strong>PID, nome do processo, memória usada (RSS) e estado</strong> de cada processo rodando. É assim que ferramentas como htop e ps funcionam por baixo.</p>
+  <ul>
+    <li>Leia <code>/proc/[pid]/status</code> para cada diretório numérico em /proc</li>
+    <li>Parse os campos: Name, State, VmRSS</li>
+    <li>Imprima formatado em colunas</li>
+  </ul>
+</div>
+
+<h3 class="h3">📝 Anote no caderno</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Escreva com suas palavras</div>
+  <ul>
+    <li>Qual a diferença entre processo e thread? (desenhe!)</li>
+    <li>O que acontece quando você digita <code>kill -9 1234</code>?</li>
+    <li>Por que goroutines são mais baratas que threads do SO?</li>
+    <li>O que é race condition? Dê um exemplo do dia a dia</li>
+    <li>Copie a tabela de sinais (SIGTERM, SIGKILL, SIGINT, SIGHUP, SIGTSTP)</li>
+  </ul>
+</div>`}
+]},
+
+/* ═══════════════════════════════════════ MEMÓRIA */
+{id:'mem', label:'Memória', slides:[
+{title:'Stack vs Heap — onde vivem suas variáveis',
+html:`
+<h2 class="sh">Memória — <em>stack e heap</em></h2>
+<p class="sub">Onde suas variáveis moram e por que isso muda a performance</p>
+
+<div class="analogy">
+  <div class="ana-icon">🗂️</div>
+  <div class="ana-text">
+    A <strong>stack</strong> é uma pilha de bandejas na cantina — você pega a de cima, usa, devolve, sempre na ordem inversa. Automático, rápido, mas tem limite. O <strong>heap</strong> é um estoque enorme onde você vai, pega uma caixa qualquer, usa, e <strong>tem que lembrar de devolver</strong>. Se esquecer, fica ocupando espaço pra sempre — isso é um memory leak.
+  </div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Termos do módulo</div>
+  <div class="term-row"><span class="term-code">stack</span><span class="term-desc">Pilha de memória gerenciada automaticamente. Cada função cria um "stack frame" (uma bandeja) com suas variáveis locais. Quando a função retorna, o frame é destruído. Tamanho limitado (~8MB no Linux).</span></div>
+  <div class="term-row"><span class="term-code">heap</span><span class="term-desc">Região de memória de tamanho flexível, gerenciada manualmente (C) ou pelo GC. Objetos grandes e dados que precisam sobreviver além de uma função ficam aqui.</span></div>
+  <div class="term-row"><span class="term-code">GC</span><span class="term-desc">Garbage Collector. Um processo automático que detecta quais objetos no heap não têm mais ninguém apontando para eles e libera a memória. Go e Java têm GC. C não tem.</span></div>
+  <div class="term-row"><span class="term-code">ponteiro</span><span class="term-desc">Uma variável que guarda um endereço de memória em vez de um valor direto. É como ter o endereço de uma casa em vez de ter a casa na mão.</span></div>
+  <div class="term-row"><span class="term-code">memory leak</span><span class="term-desc">Quando memória é alocada no heap e nunca liberada. Em programas longos isso consome RAM progressivamente até travar.</span></div>
+  <div class="term-row"><span class="term-code">stack overflow</span><span class="term-desc">Quando a stack enche — geralmente por recursão infinita. O processo recebe um SIGSEGV e crasha.</span></div>
+</div>
+
+<div class="mem-vis">
+  <div>
+    <div class="mem-col-title">Stack (automático, rápido)</div>
+    <div class="mem-stack">
+      <div class="mc mc-a">main() → x=10, y=3</div>
+      <div class="mc mc-a">calcular() → a=5</div>
+      <div class="mc mc-a">dobro() → n=8</div>
+      <div class="mc mc-free">livre...</div>
+    </div>
+    <p style="font-size:11px;color:var(--t3);margin-top:5px">cresce para baixo, desempilha ao retornar</p>
+  </div>
+  <div>
+    <div class="mem-col-title">Heap (flexível, você controla)</div>
+    <div class="mem-stack">
+      <div class="mc mc-b">slice: [1,2,3,4,5]</div>
+      <div class="mc mc-free">livre</div>
+      <div class="mc mc-b">string: "richardt"</div>
+      <div class="mc mc-free">livre</div>
+    </div>
+    <p style="font-size:11px;color:var(--t3);margin-top:5px">fragmentado, GC ou você gerencia</p>
+  </div>
+</div>`},
+
+{title:'Ponteiros e memória em Go',
+html:`
+<h2 class="sh">Ponteiros — <em>endereços de memória</em></h2>
+<p class="sub">Como cada linguagem lida com isso de forma diferente</p>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">ponteiros explícitos — o & e o *</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> <span class="cs">"fmt"</span>
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    x := <span class="cn">42</span>           <span class="cm">// variável na stack (provavelmente)</span>
+
+    ptr := &amp;x         <span class="cm">// & pega o ENDEREÇO de x</span>
+                      <span class="cm">// ptr agora contém: 0xc0000b4000 (algum endereço)</span>
+
+    fmt.<span class="cf">Println</span>(x)    <span class="cm">// 42 — o valor</span>
+    fmt.<span class="cf">Println</span>(ptr)  <span class="cm">// 0xc0000b4000 — o endereço</span>
+    fmt.<span class="cf">Println</span>(*ptr) <span class="cm">// 42 — * "derreferencia": vai até o endereço e pega o valor</span>
+
+    *ptr = <span class="cn">99</span>         <span class="cm">// muda o valor pelo endereço</span>
+    fmt.<span class="cf">Println</span>(x)    <span class="cm">// 99 — x foi modificado!</span>
+}
+
+<span class="cm">// Uso prático: passar por referência para uma função</span>
+<span class="ck">func</span> <span class="cf">dobrar</span>(n *<span class="ck">int</span>) {  <span class="cm">// recebe um ponteiro pra int</span>
+    *n = *n * <span class="cn">2</span>        <span class="cm">// modifica o valor no endereço</span>
+}
+
+<span class="cm">// Heap em Go — make/new alocam no heap</span>
+s := <span class="cf">make</span>([]<span class="ck">int</span>, <span class="cn">10</span>)   <span class="cm">// slice com backing array no heap</span>
+m := <span class="cf">make</span>(<span class="ck">map</span>[<span class="ck">string</span>]<span class="ck">int</span>) <span class="cm">// map no heap</span>
+<span class="cm">// Go tem GC — você não precisa liberar</span></pre></div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">passagem por valor vs por ponteiro</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> <span class="cs">"fmt"</span>
+
+<span class="ck">type</span> <span class="cf">Pessoa</span> <span class="ck">struct</span> {
+    Nome  <span class="ck">string</span>
+    Idade <span class="ck">int</span>
+}
+
+<span class="cm">// recebe CÓPIA — modificar não afeta o original</span>
+<span class="ck">func</span> <span class="cf">tentaMudar</span>(p Pessoa) {
+    p.Nome = <span class="cs">"mudei"</span>  <span class="cm">// não muda o original!</span>
+}
+
+<span class="cm">// recebe PONTEIRO — modifica o original</span>
+<span class="ck">func</span> <span class="cf">mudaDeVerdade</span>(p *Pessoa) {
+    p.Nome = <span class="cs">"mudei"</span>  <span class="cm">// muda o original!</span>
+}
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    richardt := Pessoa{<span class="cs">"richardt"</span>, <span class="cn">25</span>}
+
+    <span class="cf">tentaMudar</span>(richardt)
+    fmt.<span class="cf">Println</span>(richardt.Nome) <span class="cm">// "richardt" — não mudou</span>
+
+    <span class="cf">mudaDeVerdade</span>(&amp;richardt)   <span class="cm">// &amp; = passa o endereço</span>
+    fmt.<span class="cf">Println</span>(richardt.Nome) <span class="cm">// "mudei" — mudou!</span>
+
+    <span class="cm">// Slices são referências — mesmo sem ponteiro</span>
+    a := []<span class="ck">int</span>{<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">3</span>}
+    b := a           <span class="cm">// b aponta pro mesmo backing array</span>
+    b[<span class="cn">0</span>] = <span class="cn">99</span>
+    fmt.<span class="cf">Println</span>(a)  <span class="cm">// [99 2 3] — a também mudou!</span>
+
+    <span class="cm">// Para copiar um slice sem compartilhar:</span>
+    c := <span class="cf">make</span>([]<span class="ck">int</span>, <span class="cf">len</span>(a))
+    <span class="cf">copy</span>(c, a)       <span class="cm">// cópia independente</span>
+}</pre></div>
+</div>
+
+<div class="box box-ok">
+  <div class="box-label">Dica prática</div>
+  <p>Em Go, quando você passa structs grandes para funções, passe por ponteiro (<code>*MinhaStruct</code>) para evitar cópia desnecessária. Para tipos pequenos (int, bool, string pequena) — não se preocupe, o compilador otimiza. Slices e maps já são referências internamente.</p>
+</div>`},
+
+{title:'Atividades — Memória',
+html:`
+<h2 class="sh">Atividades — <em>Memória</em></h2>
+<p class="sub">Entenda onde seus dados vivem — pratique e anote</p>
+
+<h3 class="h3">💻 Exercício 1: Stack overflow na prática</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">o que acontece quando a stack estoura?</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="cm">// Esta função chama ela mesma infinitamente</span>
+<span class="cm">// O que vai acontecer? Rode e veja a mensagem de erro!</span>
+<span class="ck">func</span> <span class="cf">infinito</span>(n <span class="ck">int</span>) <span class="ck">int</span> {
+    <span class="ck">return</span> <span class="cf">infinito</span>(n + <span class="cn">1</span>)
+}
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="cf">infinito</span>(<span class="cn">0</span>)
+}
+<span class="cm">// Resultado: "goroutine 1 [running]: runtime: goroutine stack exceeds..."</span>
+<span class="cm">// Isso é stack overflow — a stack encheu de frames!</span></pre></div>
+</div>
+
+<h3 class="h3">💻 Exercício 2: Ponteiro na prática</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">complete: faça a função dobrar o valor</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> <span class="cs">"fmt"</span>
+
+<span class="cm">// TODO: receba um ponteiro para int e dobre o valor</span>
+<span class="ck">func</span> <span class="cf">dobrar</span>(<span class="cm">/* ??? */</span>) {
+    <span class="cm">// TODO: *n = *n * 2</span>
+}
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    x := <span class="cn">21</span>
+    <span class="cf">dobrar</span>(&amp;x)
+    fmt.<span class="cf">Println</span>(x) <span class="cm">// deve imprimir 42</span>
+}</pre></div>
+</div>
+
+<h3 class="h3">📝 Anote no caderno</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Escreva com suas palavras</div>
+  <ul>
+    <li>Desenhe a stack e o heap lado a lado — onde cada tipo de dado fica?</li>
+    <li><strong>Stack</strong>: automática, rápida, LIFO, tamanho fixo (~8MB), variáveis locais</li>
+    <li><strong>Heap</strong>: flexível, mais lenta, fragmentada, GC cuida em Go</li>
+    <li>O que é <strong>memory leak</strong>? Por que Go tem GC e C não?</li>
+    <li><code>&amp;x</code> = pega o endereço / <code>*ptr</code> = acessa o valor no endereço</li>
+    <li>Slices e maps em Go são referências — cuidado ao passar para funções!</li>
+    <li>Para copiar slice: use <code>copy()</code>. Para copiar struct: passe por valor (sem &amp;)</li>
+  </ul>
+</div>
+
+<h3 class="h3">🚀 Projeto: Banco chave-valor em arquivo</h3>
+<div class="box box-ok">
+  <div class="box-label">Projeto do módulo</div>
+  <p>Crie um banco de dados simples que guarda e recupera dados em arquivo binário com índice em memória — <strong>sem SQLite, sem nada</strong>. Entenda como banco de dados funciona antes de usar um.</p>
+  <ul>
+    <li>Use <code>os.OpenFile</code> para escrever structs em binário</li>
+    <li>Mantenha um <code>map[string]int64</code> em memória com a posição de cada chave</li>
+    <li>Implemente: <code>Set(key, value)</code>, <code>Get(key)</code>, <code>Delete(key)</code></li>
+  </ul>
+</div>`}
+]},
+
+/* ═══════════════════════════════════════ REDE */
+{id:'net', label:'Rede', slides:[
+{title:'TCP/IP e HTTP — como dados viajam',
+html:`
+<h2 class="sh">Rede — <em>TCP/IP e HTTP</em></h2>
+<p class="sub">O que acontece entre você digitar uma URL e a página aparecer</p>
+
+<div class="analogy">
+  <div class="ana-icon">📦</div>
+  <div class="ana-text">
+    <strong>IP</strong> é o sistema de endereços — garante que o pacote sabe para onde ir. <strong>TCP</strong> é a transportadora com rastreamento — garante que o pacote chegou, na ordem certa, sem corrupção. <strong>HTTP</strong> é a linguagem que o browser e o servidor falam por cima do TCP.
+  </div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Termos do módulo</div>
+  <div class="term-row"><span class="term-code">IP</span><span class="term-desc">Internet Protocol. O protocolo de endereçamento — cada dispositivo na internet tem um endereço IP. IPv4: 192.168.1.1. IPv6: 2001:db8::1. IP só entrega pacotes, não garante ordem ou entrega.</span></div>
+  <div class="term-row"><span class="term-code">TCP</span><span class="term-desc">Transmission Control Protocol. Roda sobre o IP. Garante que os pacotes chegam, na ordem certa. Faz o handshake de 3 vias antes de começar. Mais lento que UDP, mas confiável.</span></div>
+  <div class="term-row"><span class="term-code">UDP</span><span class="term-desc">User Datagram Protocol. Mais simples que TCP — manda pacotes sem verificar se chegaram. Usado em streaming de vídeo, jogos online (onde um frame perdido é melhor que esperar o reenvio).</span></div>
+  <div class="term-row"><span class="term-code">HTTP</span><span class="term-desc">HyperText Transfer Protocol. O protocolo que browsers e servidores web usam. Roda sobre TCP. HTTP/1.1 é texto. HTTP/2 é binário e mais eficiente. HTTP/3 usa QUIC (sobre UDP).</span></div>
+  <div class="term-row"><span class="term-code">porta</span><span class="term-desc">Um número de 0 a 65535 que identifica qual serviço está rodando num IP. HTTP usa porta 80, HTTPS usa 443, SSH usa 22. Um socket é sempre um par (IP : porta).</span></div>
+  <div class="term-row"><span class="term-code">DNS</span><span class="term-desc">Domain Name System. Traduz nomes como "google.com" para IPs como "142.250.79.14". Como uma agenda telefônica da internet.</span></div>
+  <div class="term-row"><span class="term-code">TTL</span><span class="term-desc">Time To Live. Quantos segundos uma resposta DNS pode ficar em cache. Depois disso, o resolver pergunta de novo ao servidor.</span></div>
+</div>
+
+<h3 class="h3">O handshake TCP — como uma conexão começa</h3>
+<div class="diag" style="flex-direction:column;align-items:flex-start;gap:5px">
+  <div class="diag"><div class="dn acc">Cliente</div><div class="da">──── SYN ────→</div><div class="dn" style="color:var(--t3)">"oi, posso conectar?"</div></div>
+  <div class="diag"><div class="dn acc" style="opacity:0"></div><div class="da">←── SYN-ACK ──</div><div class="dn" style="color:var(--t3)">"pode, tô aqui"</div></div>
+  <div class="diag"><div class="dn acc" style="opacity:0"></div><div class="da">──── ACK ────→</div><div class="dn ok">conexão estabelecida</div></div>
+</div>`},
+
+{title:'DNS, sockets e código real',
+html:`
+<h2 class="sh">DNS e <em>Sockets</em></h2>
+<p class="sub">Como um nome vira um IP e como abrir uma conexão do zero</p>
+
+<h3 class="h3">DNS — resolução hierárquica</h3>
+<div class="diag" style="flex-wrap:wrap;gap:5px">
+  <div class="dn acc">Browser</div><div class="da">→</div>
+  <div class="dn">Cache local</div><div class="da">→</div>
+  <div class="dn">Resolver</div><div class="da">→</div>
+  <div class="dn">Root NS</div><div class="da">→</div>
+  <div class="dn">.com NS</div><div class="da">→</div>
+  <div class="dn ok">IP final</div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">bash</span><span class="code-title">inspecionando DNS</span></div>
+  <div class="code-body"><pre>
+<span class="cm"># resolver um domínio</span>
+dig google.com
+<span class="cm"># google.com. 300 IN A 142.250.79.14</span>
+<span class="cm">#              ↑ TTL em segundos</span>
+
+<span class="cm"># ver a rota dos pacotes</span>
+traceroute google.com
+
+<span class="cm"># ver conexões abertas agora</span>
+ss -tulpn</pre></div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">servidor HTTP do zero</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> (
+    <span class="cs">"fmt"</span>
+    <span class="cs">"net/http"</span>
+)
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="cm">// registra um handler para a rota "/"</span>
+    http.<span class="cf">HandleFunc</span>(<span class="cs">"/"</span>, <span class="ck">func</span>(w http.ResponseWriter, r *http.Request) {
+        fmt.<span class="cf">Println</span>(<span class="cs">"request recebida:"</span>, r.Method, r.URL.Path)
+        fmt.<span class="cf">Fprintf</span>(w, <span class="cs">"oi do Go!\n"</span>)
+    })
+
+    fmt.<span class="cf">Println</span>(<span class="cs">"servidor em http://localhost:8080"</span>)
+    http.<span class="cf">ListenAndServe</span>(<span class="cs">":8080"</span>, <span class="ck">nil</span>)
+}
+
+<span class="cm">// teste com: curl http://localhost:8080</span></pre></div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">fazendo requisição HTTP GET na mão (sem biblioteca)</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> (
+    <span class="cs">"fmt"</span>
+    <span class="cs">"net"</span>
+)
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="cm">// conecta via TCP — o que o curl faz por baixo</span>
+    conn, _ := net.<span class="cf">Dial</span>(<span class="cs">"tcp"</span>, <span class="cs">"example.com:80"</span>)
+    <span class="ck">defer</span> conn.Close()
+
+    <span class="cm">// monta a request HTTP na mão</span>
+    req := <span class="cs">"GET / HTTP/1.1\r\n"</span> +
+           <span class="cs">"Host: example.com\r\n"</span> +
+           <span class="cs">"Connection: close\r\n"</span> +
+           <span class="cs">"\r\n"</span>
+
+    conn.Write([]<span class="ck">byte</span>(req))
+
+    <span class="cm">// lê a resposta</span>
+    buf := <span class="cf">make</span>([]<span class="ck">byte</span>, <span class="cn">4096</span>)
+    n, _ := conn.Read(buf)
+    fmt.<span class="cf">Println</span>(<span class="ck">string</span>(buf[:n]))
+}
+<span class="cm">// Vai imprimir: HTTP/1.1 200 OK + headers + HTML</span></pre></div>
+</div>
+
+<div class="box box-acc">
+  <div class="box-label">Status codes que você vai usar sempre</div>
+  <ul>
+    <li><strong>200</strong> OK — funcionou</li>
+    <li><strong>201</strong> Created — criou algo</li>
+    <li><strong>301</strong> Moved — redirecionamento</li>
+    <li><strong>400</strong> Bad Request — sua request tá errada</li>
+    <li><strong>401</strong> Unauthorized — precisa login</li>
+    <li><strong>404</strong> Not Found — não existe</li>
+    <li><strong>500</strong> Internal Server Error — problema no servidor</li>
+  </ul>
+</div>`},
+
+{title:'Atividades — Rede',
+html:`
+<h2 class="sh">Atividades — <em>Rede</em></h2>
+<p class="sub">Pratique com comandos reais e código Go</p>
+
+<h3 class="h3">🖥️ No terminal</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">bash</span><span class="code-title">faça agora no seu terminal</span></div>
+  <div class="code-body"><pre>
+<span class="cm"># 1. Resolva um domínio — veja o IP real</span>
+dig google.com +short
+
+<span class="cm"># 2. Faça requisição HTTP na mão com netcat (sem curl!)</span>
+echo -e "GET / HTTP/1.1\\r\\nHost: example.com\\r\\nConnection: close\\r\\n\\r\\n" | nc example.com 80
+
+<span class="cm"># 3. Veja a rota dos pacotes até o Google</span>
+traceroute google.com
+
+<span class="cm"># 4. Veja as conexões TCP abertas agora</span>
+ss -tulpn
+
+<span class="cm"># 5. Teste o tempo de resposta de um servidor</span>
+time curl -s -o /dev/null -w "%{http_code}" https://google.com</pre></div>
+</div>
+
+<h3 class="h3">🚀 Projeto: Clone do curl</h3>
+<div class="box box-ok">
+  <div class="box-label">Projeto do módulo</div>
+  <p>Faça requisição HTTP GET/POST na mão em Go, imprimindo headers e body — <strong>sem usar net/http</strong>, só net.Dial puro. Entenda TCP, HTTP/1.1 e o que é um socket de verdade.</p>
+  <ul>
+    <li>Aceite URL e método como argumento: <code>./meucurl GET http://example.com</code></li>
+    <li>Parse a URL para extrair host, porta e path</li>
+    <li>Monte o request HTTP/1.1 manualmente</li>
+    <li>Imprima os headers de resposta separados do body</li>
+  </ul>
+</div>
+
+<h3 class="h3">📝 Anote no caderno</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Escreva com suas palavras</div>
+  <ul>
+    <li>Desenhe o handshake TCP (SYN → SYN-ACK → ACK)</li>
+    <li>Qual a diferença entre TCP e UDP? Quando usar cada um?</li>
+    <li>O que é DNS? Desenhe o fluxo: browser → cache → resolver → root → IP</li>
+    <li>O que é uma porta? Por que HTTP usa 80 e HTTPS usa 443?</li>
+    <li>Copie os status codes HTTP mais importantes (200, 201, 301, 400, 401, 404, 500)</li>
+    <li>O que é TTL no DNS? Por que existe cache?</li>
+  </ul>
+</div>`}
+]},
+
+/* ═══════════════════════════════════════ ESTRUTURAS */
+{id:'ds', label:'Estruturas de dados', slides:[
+{title:'Por que estruturas de dados existem',
+html:`
+<h2 class="sh">Estruturas <em>de dados</em></h2>
+<p class="sub">Escolher a estrutura errada pode tornar seu código 1 milhão de vezes mais lento</p>
+
+<div class="analogy">
+  <div class="ana-icon">🧰</div>
+  <div class="ana-text">
+    Você precisa checar se o usuário "richardt" já existe numa lista de 1 milhão. Com um array, você lê os 1 milhão um por um. Com um hash map, a resposta é <strong>instantânea</strong> — não importa se são 10 ou 10 bilhões. A estrutura certa muda tudo.
+  </div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">Termos do módulo</div>
+  <div class="term-row"><span class="term-code">array</span><span class="term-desc">Sequência contínua de elementos na memória. Acesso por índice em O(1). Inserção no meio é cara — precisa deslocar todos.</span></div>
+  <div class="term-row"><span class="term-code">linked list</span><span class="term-desc">Lista encadeada. Cada elemento aponta para o próximo. Inserção/remoção em O(1) se você tem o ponteiro, mas acesso por posição é O(n). Não usa memória contígua.</span></div>
+  <div class="term-row"><span class="term-code">stack / pilha</span><span class="term-desc">LIFO — Last In, First Out. Último a entrar é o primeiro a sair. Como uma pilha de pratos. push() adiciona, pop() remove do topo.</span></div>
+  <div class="term-row"><span class="term-code">queue / fila</span><span class="term-desc">FIFO — First In, First Out. Primeiro a entrar é o primeiro a sair. Como uma fila de banco. enqueue adiciona no fim, dequeue remove do início.</span></div>
+  <div class="term-row"><span class="term-code">hash map</span><span class="term-desc">Estrutura chave→valor com acesso em O(1) amortizado. Uma função hash converte a chave em um índice. Em Go é map[K]V.</span></div>
+  <div class="term-row"><span class="term-code">BST</span><span class="term-desc">Binary Search Tree — Árvore Binária de Busca. Cada nó tem um valor, filho esquerdo menor, filho direito maior. Busca em O(log n) se balanceada.</span></div>
+  <div class="term-row"><span class="term-code">amortizado</span><span class="term-desc">Custo médio ao longo de muitas operações. Array.push() é O(1) amortizado — de vez em quando realoca e copia (O(n)), mas tão raramente que a média continua O(1).</span></div>
+</div>
+
+<table class="ctab">
+  <tr><th>Estrutura</th><th>Busca</th><th>Insert</th><th>Delete</th><th>Quando usar</th></tr>
+  <tr><td>Array</td><td>O(n)</td><td>O(1) fim</td><td>O(n)</td><td>Acesso por índice, dados sequenciais</td></tr>
+  <tr><td>Linked List</td><td>O(n)</td><td>O(1)*</td><td>O(1)*</td><td>Inserções frequentes no meio</td></tr>
+  <tr><td>Stack</td><td>—</td><td>O(1)</td><td>O(1)</td><td>Undo, expressões, chamadas de função</td></tr>
+  <tr><td>Queue</td><td>—</td><td>O(1)</td><td>O(1)</td><td>Filas de tarefa, BFS, eventos</td></tr>
+  <tr><td>Hash Map</td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td>Lookup por chave, cache, contagem</td></tr>
+  <tr><td>BST balanceada</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>Dados ordenados, range queries</td></tr>
+</table>
+<p style="font-size:11px;color:var(--t3)">* com ponteiro para o nó</p>`},
+
+{title:'Array, Stack e Queue em Go',
+html:`
+<h2 class="sh">Array · Stack · <em>Queue</em></h2>
+<p class="sub">As estruturas mais usadas — tudo em Go</p>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">slice (array dinâmico), stack, queue</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> <span class="cs">"fmt"</span>
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="cm">// ── SLICE (array dinâmico no Go) ──</span>
+    s := []<span class="ck">int</span>{<span class="cn">10</span>, <span class="cn">20</span>, <span class="cn">30</span>}
+    s = <span class="cf">append</span>(s, <span class="cn">40</span>)       <span class="cm">// O(1) amortizado</span>
+    fmt.<span class="cf">Println</span>(s[<span class="cn">2</span>])       <span class="cm">// O(1) — acesso por índice</span>
+    fmt.<span class="cf">Println</span>(s[<span class="cn">1</span>:<span class="cn">3</span>])     <span class="cm">// slice de slice — [20, 30]</span>
+
+    <span class="cm">// ── STACK com slice ──</span>
+    stack := []<span class="ck">int</span>{}
+    stack = <span class="cf">append</span>(stack, <span class="cn">1</span>)  <span class="cm">// push</span>
+    stack = <span class="cf">append</span>(stack, <span class="cn">2</span>)  <span class="cm">// push</span>
+    top := stack[<span class="cf">len</span>(stack)-<span class="cn">1</span>]        <span class="cm">// peek (ver o topo)</span>
+    stack = stack[:<span class="cf">len</span>(stack)-<span class="cn">1</span>]      <span class="cm">// pop (remove o topo)</span>
+    fmt.<span class="cf">Println</span>(top, stack)
+
+    <span class="cm">// ── QUEUE com slice (simples, não eficiente para n grande) ──</span>
+    queue := []<span class="ck">string</span>{}
+    queue = <span class="cf">append</span>(queue, <span class="cs">"email1"</span>)   <span class="cm">// enqueue</span>
+    queue = <span class="cf">append</span>(queue, <span class="cs">"email2"</span>)
+    primeiro := queue[<span class="cn">0</span>]             <span class="cm">// peek</span>
+    queue = queue[<span class="cn">1</span>:]                <span class="cm">// dequeue — O(n)!</span>
+    <span class="cm">// Para queue eficiente em Go, use container/list</span>
+    fmt.<span class="cf">Println</span>(primeiro, queue)
+}</pre></div>
+</div>
+
+<div class="box box-acc">
+  <div class="box-label">Quando usar cada um</div>
+  <ul>
+    <li><strong>Stack (pilha)</strong>: undo/redo, call stack, avaliação de expressões matemáticas</li>
+    <li><strong>Queue (fila)</strong>: fila de tarefas, BFS em grafos, processar uploads em background</li>
+    <li><strong>Slice (array)</strong>: quando precisa acessar por índice e dados são sequenciais</li>
+  </ul>
+</div>`},
+
+{title:'Hash Map — a estrutura mais poderosa',
+html:`
+<h2 class="sh">Hash Map — <em>O(1) para tudo</em></h2>
+<p class="sub">Como funciona por dentro e os padrões de uso mais comuns</p>
+
+<div class="analogy">
+  <div class="ana-icon">📬</div>
+  <div class="ana-text">
+    Você tem 1000 caixas de correio numeradas. Ao receber uma carta para "richardt", você passa o nome por uma <strong>função hash</strong> que sempre gera o mesmo número (ex: 742). A carta vai pra caixa 742. Para buscar: passa "richardt" pela mesma função → vai direto na caixa 742. <strong>Não importa quantas cartas existem — sempre 1 passo.</strong>
+  </div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">map — operações e padrões</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> <span class="cs">"fmt"</span>
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    <span class="cm">// criar um map</span>
+    idades := <span class="ck">map</span>[<span class="ck">string</span>]<span class="ck">int</span>{
+        <span class="cs">"richardt"</span>: <span class="cn">25</span>,
+        <span class="cs">"ana"</span>:      <span class="cn">30</span>,
+    }
+
+    <span class="cm">// set — O(1)</span>
+    idades[<span class="cs">"carlos"</span>] = <span class="cn">22</span>
+
+    <span class="cm">// get com verificação se existe — padrão idiomático Go</span>
+    idade, existe := idades[<span class="cs">"richardt"</span>]
+    <span class="ck">if</span> existe {
+        fmt.<span class="cf">Println</span>(idade) <span class="cm">// 25</span>
+    }
+
+    <span class="cm">// delete — O(1)</span>
+    <span class="ck">delete</span>(idades, <span class="cs">"carlos"</span>)
+
+    <span class="cm">// iterar (ordem não garantida)</span>
+    <span class="ck">for</span> nome, idade := <span class="ck">range</span> idades {
+        fmt.<span class="cf">Printf</span>(<span class="cs">"%s: %d\n"</span>, nome, idade)
+    }
+
+    <span class="cm">// ── Padrão: contar frequência ──</span>
+    palavras := []<span class="ck">string</span>{<span class="cs">"go"</span>, <span class="cs">"js"</span>, <span class="cs">"go"</span>, <span class="cs">"ts"</span>, <span class="cs">"go"</span>}
+    freq := <span class="ck">map</span>[<span class="ck">string</span>]<span class="ck">int</span>{}
+    <span class="ck">for</span> _, p := <span class="ck">range</span> palavras {
+        freq[p]++  <span class="cm">// zero value do int é 0 — não precisa inicializar</span>
+    }
+    fmt.<span class="cf">Println</span>(freq) <span class="cm">// map[go:3 js:1 ts:1]</span>
+}</pre></div>
+</div>
+
+<div class="box box-warn">
+  <div class="box-label">Em Go: Set = map[T]bool</div>
+  <p>Go não tem Set nativo. Use <code>map[string]bool{}</code> e verifique com <code>vistos[chave]</code> — retorna false se não existe (zero value). É O(1).</p>
+</div>`},
+
+{title:'Atividades — Estruturas de dados',
+html:`
+<h2 class="sh">Atividades — <em>Estruturas de dados</em></h2>
+<p class="sub">Implemente do zero — é assim que você aprende de verdade</p>
+
+<h3 class="h3">💻 Exercício 1: Linked List do zero</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">complete a implementação</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> <span class="cs">"fmt"</span>
+
+<span class="ck">type</span> <span class="cf">Node</span> <span class="ck">struct</span> {
+    Valor <span class="ck">int</span>
+    Prox  *Node
+}
+
+<span class="ck">type</span> <span class="cf">Lista</span> <span class="ck">struct</span> {
+    Head *Node
+}
+
+<span class="cm">// TODO: adicionar no início — O(1)</span>
+<span class="ck">func</span> (l *Lista) <span class="cf">Inserir</span>(v <span class="ck">int</span>) {
+    <span class="cm">// novo := &amp;Node{Valor: v, Prox: l.Head}</span>
+    <span class="cm">// l.Head = novo</span>
+}
+
+<span class="cm">// TODO: buscar — O(n)</span>
+<span class="ck">func</span> (l *Lista) <span class="cf">Buscar</span>(v <span class="ck">int</span>) <span class="ck">bool</span> {
+    <span class="cm">// percorra a lista até achar v ou chegar em nil</span>
+    <span class="ck">return</span> <span class="ck">false</span>
+}
+
+<span class="cm">// TODO: imprimir todos os valores</span>
+<span class="ck">func</span> (l *Lista) <span class="cf">Imprimir</span>() {
+    <span class="cm">// percorra imprimindo cada nó</span>
+}
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    l := &amp;Lista{}
+    l.Inserir(<span class="cn">10</span>)
+    l.Inserir(<span class="cn">20</span>)
+    l.Inserir(<span class="cn">30</span>)
+    l.Imprimir()          <span class="cm">// 30 → 20 → 10</span>
+    fmt.<span class="cf">Println</span>(l.Buscar(<span class="cn">20</span>)) <span class="cm">// true</span>
+}</pre></div>
+</div>
+
+<h3 class="h3">💻 Exercício 2: Contador de frequência com map</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Desafio</div>
+  <p>Dada a string <code>"banana"</code>, conte quantas vezes cada letra aparece usando <code>map[rune]int</code>. Resultado esperado: <code>b:1 a:3 n:2</code></p>
+</div>
+
+<h3 class="h3">🚀 Projeto: Estruturas de dados na raça</h3>
+<div class="box box-ok">
+  <div class="box-label">Projeto do módulo</div>
+  <p>Implemente <strong>do zero em Go</strong>: linked list, stack, queue, hash map e árvore binária. Sem usar pacotes prontos.</p>
+  <ul>
+    <li>Linked list com Insert, Remove, Search, Print</li>
+    <li>Stack com Push, Pop, Peek, IsEmpty</li>
+    <li>Queue com Enqueue, Dequeue, Peek</li>
+    <li>Hash map com Set, Get, Delete (trate colisões com chaining)</li>
+    <li>Árvore binária com Insert, Search, InOrder traversal</li>
+  </ul>
+</div>
+
+<h3 class="h3">📝 Anote no caderno</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Escreva com suas palavras</div>
+  <ul>
+    <li>Copie a tabela de complexidade: Array, Linked List, Stack, Queue, Hash Map, BST</li>
+    <li>Quando usar array vs linked list? (acesso vs inserção)</li>
+    <li>Stack = LIFO / Queue = FIFO — desenhe exemplos</li>
+    <li>Como hash map funciona? (chave → hash function → índice → valor)</li>
+    <li>O que são colisões? Como resolver? (chaining vs open addressing)</li>
+    <li>Por que BST tem busca O(log n)? E se não for balanceada?</li>
+  </ul>
+</div>`}
+]},
+
+/* ═══════════════════════════════════════ ALGORITMOS */
+{id:'algo', label:'Ordenação e complexidade', slides:[
+{title:'Big O — como medir se seu código é lento',
+html:`
+<h2 class="sh">Complexidade — <em>Big O</em></h2>
+<p class="sub">A forma de responder: "meu código aguenta 1 milhão de dados?"</p>
+
+<div class="analogy">
+  <div class="ana-icon">⏱️</div>
+  <div class="ana-text">
+    Big O não mede segundos. Mede <strong>quantas operações seu código faz em relação ao tamanho da entrada (n)</strong>. Se você dobrar o tamanho dos dados, o código faz o dobro de operações? Quatro vezes mais? O mesmo? Isso é o que Big O responde.
+  </div>
+</div>
+
+<div class="term-block">
+  <div class="tb-label">O que cada notação significa</div>
+  <div class="term-row"><span class="term-code">O(1)</span><span class="term-desc">Constante. Sempre faz o mesmo número de operações, não importa o tamanho da entrada. Ex: acessar arr[5].</span></div>
+  <div class="term-row"><span class="term-code">O(log n)</span><span class="term-desc">Logarítmica. A cada passo, o problema é dividido ao meio. n=1 bilhão → ~30 passos. Ex: busca binária.</span></div>
+  <div class="term-row"><span class="term-code">O(n)</span><span class="term-desc">Linear. Operações crescem na mesma proporção que a entrada. Dobrou n, dobrou operações. Ex: um loop simples.</span></div>
+  <div class="term-row"><span class="term-code">O(n log n)</span><span class="term-desc">Linearítmica. A melhor complexidade possível para ordenação geral. Ex: merge sort, quick sort médio.</span></div>
+  <div class="term-row"><span class="term-code">O(n²)</span><span class="term-desc">Quadrática. Dois loops aninhados. Dobrou n, quadruplicou as operações. Evite para n grande.</span></div>
+  <div class="term-row"><span class="term-code">O(2ⁿ)</span><span class="term-desc">Exponencial. Cada elemento adicionado dobra o trabalho. Inviável para n > 30.</span></div>
+</div>
+
+<div id="bo-table-area">
+  <div class="bo-row"><div class="bo-tag" style="background:rgba(107,158,120,.12);color:var(--ok);border:1px solid rgba(107,158,120,.25)">O(1)</div><div class="bo-info"><div class="name">Constante</div><div class="ex">hash map get, arr[i]</div></div><div class="bo-bar-wrap"><div class="bo-bar" style="width:2%;background:var(--ok)"></div></div></div>
+  <div class="bo-row"><div class="bo-tag" style="background:rgba(107,158,120,.08);color:#6ba87a;border:1px solid rgba(107,158,120,.2)">O(log n)</div><div class="bo-info"><div class="name">Logarítmica</div><div class="ex">busca binária, BST</div></div><div class="bo-bar-wrap"><div class="bo-bar" style="width:8%;background:#6ba87a"></div></div></div>
+  <div class="bo-row"><div class="bo-tag" style="background:rgba(200,185,154,.08);color:var(--acc);border:1px solid rgba(200,185,154,.2)">O(n)</div><div class="bo-info"><div class="name">Linear</div><div class="ex">um loop, busca linear</div></div><div class="bo-bar-wrap"><div class="bo-bar" style="width:30%;background:var(--acc)"></div></div></div>
+  <div class="bo-row"><div class="bo-tag" style="background:rgba(200,185,154,.06);color:#a89470;border:1px solid rgba(200,185,154,.15)">O(n log n)</div><div class="bo-info"><div class="name">Linearítmica</div><div class="ex">merge sort, quick sort</div></div><div class="bo-bar-wrap"><div class="bo-bar" style="width:55%;background:#a89470"></div></div></div>
+  <div class="bo-row"><div class="bo-tag" style="background:rgba(158,107,107,.1);color:var(--err);border:1px solid rgba(158,107,107,.2)">O(n²)</div><div class="bo-info"><div class="name">Quadrática</div><div class="ex">loops aninhados, bubble sort</div></div><div class="bo-bar-wrap"><div class="bo-bar" style="width:82%;background:var(--err)"></div></div></div>
+  <div class="bo-row"><div class="bo-tag" style="background:rgba(158,107,107,.15);color:#c27070;border:1px solid rgba(158,107,107,.3)">O(2ⁿ)</div><div class="bo-info"><div class="name">Exponencial</div><div class="ex">subconjuntos, fib recursivo</div></div><div class="bo-bar-wrap"><div class="bo-bar" style="width:100%;background:#c27070"></div></div></div>
+</div>`},
+
+{title:'As 4 regras para identificar complexidade',
+html:`
+<h2 class="sh">Como <em>identificar</em> Big O no código</h2>
+<p class="sub">Regras simples que você aplica lendo qualquer função</p>
+
+<div class="box box-acc">
+  <div class="box-label">As 4 regras</div>
+  <ul>
+    <li><strong>Linha simples, sem loop</strong> → O(1)</li>
+    <li><strong>Um loop de 0 a n</strong> → O(n)</li>
+    <li><strong>Loop dentro de loop (ambos até n)</strong> → O(n²)</li>
+    <li><strong>A cada iteração você divide o problema pela metade</strong> → O(log n)</li>
+    <li><strong>Loops em sequência se somam</strong> → O(n) + O(n) = O(2n) = <strong>O(n)</strong></li>
+    <li><strong>Loops aninhados se multiplicam</strong> → O(n) × O(n) = <strong>O(n²)</strong></li>
+  </ul>
+</div>
+
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">leia o código e identifique</span></div>
+  <div class="code-body"><pre>
+<span class="cm">// ── O(1) — nenhum loop, acesso direto ──</span>
+<span class="ck">func</span> <span class="cf">primeiro</span>(arr []<span class="ck">int</span>) <span class="ck">int</span> {
+    <span class="ck">return</span> arr[<span class="cn">0</span>]  <span class="cm">// O(1) — não importa o tamanho</span>
+}
+
+<span class="cm">// ── O(n) — um loop ──</span>
+<span class="ck">func</span> <span class="cf">soma</span>(arr []<span class="ck">int</span>) <span class="ck">int</span> {
+    total := <span class="cn">0</span>
+    <span class="ck">for</span> _, v := <span class="ck">range</span> arr {  <span class="cm">// percorre n elementos</span>
+        total += v
+    }
+    <span class="ck">return</span> total   <span class="cm">// O(n)</span>
+}
+
+<span class="cm">// ── O(n²) — loop dentro de loop ──</span>
+<span class="ck">func</span> <span class="cf">temDuplicata</span>(arr []<span class="ck">int</span>) <span class="ck">bool</span> {
+    <span class="ck">for</span> i := <span class="cn">0</span>; i &lt; <span class="cf">len</span>(arr); i++ {
+        <span class="ck">for</span> j := i + <span class="cn">1</span>; j &lt; <span class="cf">len</span>(arr); j++ {  <span class="cm">// ← loop dentro de loop = O(n²)</span>
+            <span class="ck">if</span> arr[i] == arr[j] { <span class="ck">return</span> <span class="ck">true</span> }
+        }
+    }
+    <span class="ck">return</span> <span class="ck">false</span>
+}
+
+<span class="cm">// ── O(n) — mesma função, com hash map ──</span>
+<span class="ck">func</span> <span class="cf">temDuplicataRapido</span>(arr []<span class="ck">int</span>) <span class="ck">bool</span> {
+    vistos := <span class="ck">map</span>[<span class="ck">int</span>]<span class="ck">bool</span>{}
+    <span class="ck">for</span> _, v := <span class="ck">range</span> arr {
+        <span class="ck">if</span> vistos[v] { <span class="ck">return</span> <span class="ck">true</span> }  <span class="cm">// O(1) por verificação</span>
+        vistos[v] = <span class="ck">true</span>
+    }
+    <span class="ck">return</span> <span class="ck">false</span>
+}   <span class="cm">// trocamos O(n²) por O(n) — 1 mil itens: 1M ops → 1K ops</span>
+
+<span class="cm">// ── O(log n) — divide ao meio a cada passo ──</span>
+<span class="ck">func</span> <span class="cf">buscaBinaria</span>(arr []<span class="ck">int</span>, alvo <span class="ck">int</span>) <span class="ck">int</span> {
+    ini, fim := <span class="cn">0</span>, <span class="cf">len</span>(arr)-<span class="cn">1</span>
+    <span class="ck">for</span> ini &lt;= fim {
+        meio := (ini + fim) / <span class="cn">2</span>
+        <span class="ck">if</span>   arr[meio] == alvo { <span class="ck">return</span> meio }
+        <span class="ck">else if</span> arr[meio] &lt; alvo  { ini = meio + <span class="cn">1</span> }  <span class="cm">// ← divide ao meio</span>
+        <span class="ck">else</span>                      { fim = meio - <span class="cn">1</span> }
+    }
+    <span class="ck">return</span> -<span class="cn">1</span>
+}   <span class="cm">// 1 bilhão de itens → no máximo 30 comparações</span></pre></div>
+</div>`},
+
+{title:'Os 3 algoritmos de ordenação',
+html:`
+<h2 class="sh">Bubble · Merge · <em>Quick Sort</em></h2>
+<p class="sub">Três abordagens diferentes para o mesmo problema</p>
+
+<div class="sort-ctrl">
+  <button class="sc-btn" onclick="setSAlgo('bubble')">Bubble sort</button>
+  <button class="sc-btn" onclick="setSAlgo('merge')">Merge sort</button>
+  <button class="sc-btn" onclick="setSAlgo('quick')">Quick sort</button>
+  <button class="sc-btn" onclick="sStep()">▶ próximo passo</button>
+  <button class="sc-btn" onclick="sReset()">↺ resetar</button>
+</div>
+<div class="sort-bars" id="sBars"></div>
+<div class="sort-info" id="sInfo">escolha um algoritmo acima</div>
+
+<div class="code-wrap" style="margin-top:1rem">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">os três algoritmos</span></div>
+  <div class="code-body"><pre>
+<span class="cm">// ── BUBBLE SORT — O(n²) ──</span>
+<span class="ck">func</span> <span class="cf">bubbleSort</span>(arr []<span class="ck">int</span>) {
+    n := <span class="cf">len</span>(arr)
+    <span class="ck">for</span> i := <span class="cn">0</span>; i &lt; n-<span class="cn">1</span>; i++ {
+        <span class="ck">for</span> j := <span class="cn">0</span>; j &lt; n-<span class="cn">1</span>-i; j++ {
+            <span class="ck">if</span> arr[j] > arr[j+<span class="cn">1</span>] {
+                arr[j], arr[j+<span class="cn">1</span>] = arr[j+<span class="cn">1</span>], arr[j]
+            }
+        }
+    }
+}
+
+<span class="cm">// ── MERGE SORT — O(n log n) ──</span>
+<span class="ck">func</span> <span class="cf">mergeSort</span>(arr []<span class="ck">int</span>) []<span class="ck">int</span> {
+    <span class="ck">if</span> <span class="cf">len</span>(arr) &lt;= <span class="cn">1</span> { <span class="ck">return</span> arr }
+    meio := <span class="cf">len</span>(arr) / <span class="cn">2</span>
+    esq := <span class="cf">mergeSort</span>(arr[:meio])
+    dir := <span class="cf">mergeSort</span>(arr[meio:])
+    <span class="ck">return</span> <span class="cf">merge</span>(esq, dir)
+}
+<span class="ck">func</span> <span class="cf">merge</span>(a, b []<span class="ck">int</span>) []<span class="ck">int</span> {
+    res := []<span class="ck">int</span>{}
+    i, j := <span class="cn">0</span>, <span class="cn">0</span>
+    <span class="ck">for</span> i &lt; <span class="cf">len</span>(a) && j &lt; <span class="cf">len</span>(b) {
+        <span class="ck">if</span> a[i] &lt; b[j] { res = <span class="cf">append</span>(res, a[i]); i++ } <span class="ck">else</span> { res = <span class="cf">append</span>(res, b[j]); j++ }
+    }
+    res = <span class="cf">append</span>(res, a[i:]...)
+    <span class="ck">return</span> <span class="cf">append</span>(res, b[j:]...)
+}
+
+<span class="cm">// ── QUICK SORT — O(n log n) médio ──</span>
+<span class="ck">func</span> <span class="cf">quickSort</span>(arr []<span class="ck">int</span>, lo, hi <span class="ck">int</span>) {
+    <span class="ck">if</span> lo >= hi { <span class="ck">return</span> }
+    pivot := arr[hi]; i := lo - <span class="cn">1</span>
+    <span class="ck">for</span> j := lo; j &lt; hi; j++ {
+        <span class="ck">if</span> arr[j] &lt;= pivot { i++; arr[i], arr[j] = arr[j], arr[i] }
+    }
+    arr[i+<span class="cn">1</span>], arr[hi] = arr[hi], arr[i+<span class="cn">1</span>]
+    pi := i + <span class="cn">1</span>
+    <span class="cf">quickSort</span>(arr, lo, pi-<span class="cn">1</span>)
+    <span class="cf">quickSort</span>(arr, pi+<span class="cn">1</span>, hi)
+}</pre></div>
+</div>`},
+
+{title:'Atividades — Algoritmos e Lógica',
+html:`
+<h2 class="sh">Atividades — <em>Algoritmos e Lógica</em></h2>
+<p class="sub">Aqui é onde você realmente aprende lógica de programação</p>
+
+<h3 class="h3">💻 Exercício 1: Insertion Sort do zero</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">implemente insertion sort</span></div>
+  <div class="code-body"><pre>
+<span class="ck">package</span> main
+
+<span class="ck">import</span> <span class="cs">"fmt"</span>
+
+<span class="cm">// Insertion sort: pega cada elemento e insere na posição correta</span>
+<span class="cm">// Como organizar cartas na mão: pega uma e encaixa no lugar certo</span>
+<span class="ck">func</span> <span class="cf">insertionSort</span>(arr []<span class="ck">int</span>) {
+    <span class="ck">for</span> i := <span class="cn">1</span>; i &lt; <span class="cf">len</span>(arr); i++ {
+        chave := arr[i]
+        j := i - <span class="cn">1</span>
+        <span class="cm">// move elementos maiores para a direita</span>
+        <span class="ck">for</span> j >= <span class="cn">0</span> &amp;&amp; arr[j] > chave {
+            arr[j+<span class="cn">1</span>] = arr[j]
+            j--
+        }
+        arr[j+<span class="cn">1</span>] = chave
+    }
+}
+
+<span class="ck">func</span> <span class="cf">main</span>() {
+    dados := []<span class="ck">int</span>{<span class="cn">5</span>, <span class="cn">3</span>, <span class="cn">8</span>, <span class="cn">1</span>, <span class="cn">9</span>, <span class="cn">2</span>}
+    <span class="cf">insertionSort</span>(dados)
+    fmt.<span class="cf">Println</span>(dados) <span class="cm">// [1 2 3 5 8 9]</span>
+}</pre></div>
+</div>
+
+<h3 class="h3">💻 Exercício 2: Busca binária na prática</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Desafio</div>
+  <p>Dado um array ordenado <code>[2, 5, 8, 12, 16, 23, 38, 56, 72, 91]</code> e o alvo <code>23</code>, trace manualmente a busca binária no caderno:</p>
+  <ul>
+    <li>Passo 1: ini=0, fim=9, meio=? arr[meio]=? maior ou menor que 23?</li>
+    <li>Passo 2: novo ini ou fim? meio=? arr[meio]=?</li>
+    <li>Continue até encontrar. Quantos passos levou?</li>
+  </ul>
+</div>
+
+<h3 class="h3">💻 Exercício 3: Two Sum com hash map</h3>
+<div class="code-wrap">
+  <div class="code-header"><span class="code-lang">Go</span><span class="code-title">encontre dois números que somam ao alvo</span></div>
+  <div class="code-body"><pre>
+<span class="cm">// Dado: arr = [2, 7, 11, 15], alvo = 9</span>
+<span class="cm">// Retorne os índices dos dois números que somam 9</span>
+<span class="cm">// Resposta: [0, 1] porque arr[0] + arr[1] = 2 + 7 = 9</span>
+
+<span class="ck">func</span> <span class="cf">twoSum</span>(arr []<span class="ck">int</span>, alvo <span class="ck">int</span>) []<span class="ck">int</span> {
+    vistos := <span class="ck">map</span>[<span class="ck">int</span>]<span class="ck">int</span>{} <span class="cm">// valor → índice</span>
+    <span class="ck">for</span> i, v := <span class="ck">range</span> arr {
+        complemento := alvo - v
+        <span class="ck">if</span> j, ok := vistos[complemento]; ok {
+            <span class="ck">return</span> []<span class="ck">int</span>{j, i}
+        }
+        vistos[v] = i
+    }
+    <span class="ck">return</span> <span class="ck">nil</span>
+}
+<span class="cm">// O(n) em vez de O(n²) — o truque é o hash map!</span></pre></div>
+</div>
+
+<h3 class="h3">🚀 Projeto: Algoritmos com benchmark</h3>
+<div class="box box-ok">
+  <div class="box-label">Projeto do módulo</div>
+  <p>Implemente <strong>bubble, insertion, merge e quicksort</strong> em Go. Depois, meça o tempo real de execução com arrays de 1K, 10K e 100K elementos usando <code>testing.B</code>.</p>
+  <ul>
+    <li>Crie arquivo <code>sort_test.go</code> com benchmarks</li>
+    <li>Rode com <code>go test -bench=. -benchtime=3s</code></li>
+    <li>Compare os tempos — veja O(n²) vs O(n log n) na prática</li>
+    <li>Anote os resultados no caderno</li>
+  </ul>
+</div>
+
+<h3 class="h3">📝 Anote no caderno</h3>
+<div class="box box-def">
+  <div class="box-label" style="color:var(--t3)">Escreva com suas palavras</div>
+  <ul>
+    <li>Copie a tabela Big O: O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ)</li>
+    <li>Para cada um, dê um exemplo de código</li>
+    <li>Regra: loop simples = O(n), loop dentro de loop = O(n²), divide ao meio = O(log n)</li>
+    <li>Como bubble sort funciona? Trace [5,3,1] passo a passo</li>
+    <li>Como merge sort funciona? Desenhe a divisão e junção</li>
+    <li>O que é busca binária? Por que só funciona em array ordenado?</li>
+    <li>Padrão: trocar O(n²) por O(n) usando hash map (two sum)</li>
+  </ul>
+</div>`},
+
+/* ── EXERCÍCIOS ── */
+{title:'Exercícios — Estruturas e Complexidade',
+html:`
+<h2 class="sh">Exercícios — <em>Big O e estruturas</em></h2>
+<p class="sub">Leia o código, pense na regra e clique na resposta</p>
+
+<div class="quiz-q" id="qq-0">
+  <p><strong>1.</strong> Qual a complexidade desta função?</p>
+  <div class="code-wrap" style="margin-bottom:.6rem"><div class="code-body"><pre style="font-size:12px">func encontrar(arr []int, alvo int) int {
+    for i, v := range arr {
+        if v == alvo { return i }
+    }
+    return -1
+}</pre></div></div>
+  <button class="qopt" onclick="quizCheck(0,0)">O(1)</button>
+  <button class="qopt" onclick="quizCheck(0,1)">O(log n)</button>
+  <button class="qopt" onclick="quizCheck(0,2)">O(n)</button>
+  <button class="qopt" onclick="quizCheck(0,3)">O(n²)</button>
+  <div class="qfb" id="qfb-0"></div>
+</div>
+
+<div class="quiz-q" id="qq-1">
+  <p><strong>2.</strong> E esta função em Go?</p>
+  <div class="code-wrap" style="margin-bottom:.6rem"><div class="code-body"><pre style="font-size:12px">func pares(n int) int {
+    count := 0
+    for i := 0; i &lt; n; i++ {
+        for j := 0; j &lt; n; j++ {
+            count++
+        }
+    }
+    return count
+}</pre></div></div>
+  <button class="qopt" onclick="quizCheck(1,0)">O(1)</button>
+  <button class="qopt" onclick="quizCheck(1,1)">O(n)</button>
+  <button class="qopt" onclick="quizCheck(1,2)">O(n log n)</button>
+  <button class="qopt" onclick="quizCheck(1,3)">O(n²)</button>
+  <div class="qfb" id="qfb-1"></div>
+</div>
+
+<div class="quiz-q" id="qq-2">
+  <p><strong>3.</strong> Qual estrutura usar para checar se um usuário já votou? (1M de usuários)</p>
+  <div class="code-wrap" style="margin-bottom:.6rem"><div class="code-body"><pre style="font-size:12px">// Opção A: slice — busca O(n)
+for _, v := range vistos {
+    if v == id { return true }
+}
+
+// Opção B: map — busca O(???)
+return vistos[id]</pre></div></div>
+  <button class="qopt" onclick="quizCheck(2,0)">Slice — for range é mais claro</button>
+  <button class="qopt" onclick="quizCheck(2,1)">Map — O(1) no acesso</button>
+  <button class="qopt" onclick="quizCheck(2,2)">São equivalentes</button>
+  <button class="qopt" onclick="quizCheck(2,3)">Depende do tamanho</button>
+  <div class="qfb" id="qfb-2"></div>
+</div>
+
+<div class="quiz-q" id="qq-3">
+  <p><strong>4.</strong> Qual a complexidade total desta função?</p>
+  <div class="code-wrap" style="margin-bottom:.6rem"><div class="code-body"><pre style="font-size:12px">func processar(arr []int) []int {
+    for _, v := range arr { fmt.Println(v) }          // O(n)
+    resultado := make([]int, len(arr))
+    for i, v := range arr { resultado[i] = v * 2 }    // O(n)
+    return resultado
+}</pre></div></div>
+  <button class="qopt" onclick="quizCheck(3,0)">O(1)</button>
+  <button class="qopt" onclick="quizCheck(3,1)">O(n)</button>
+  <button class="qopt" onclick="quizCheck(3,2)">O(2n)</button>
+  <button class="qopt" onclick="quizCheck(3,3)">O(n²)</button>
+  <div class="qfb" id="qfb-3"></div>
+</div>
+
+<div class="quiz-q" id="qq-4">
+  <p><strong>5.</strong> A busca binária só funciona se o array estiver:</p>
+  <button class="qopt" onclick="quizCheck(4,0)">Em qualquer ordem</button>
+  <button class="qopt" onclick="quizCheck(4,1)">Ordenado</button>
+  <button class="qopt" onclick="quizCheck(4,2)">Com índices pares</button>
+  <button class="qopt" onclick="quizCheck(4,3)">Com menos de 1000 elementos</button>
+  <div class="qfb" id="qfb-4"></div>
+</div>
+
+<div class="quiz-q" id="qq-5">
+  <p><strong>6.</strong> Qual o truque para trocar O(n²) por O(n) no two sum?</p>
+  <button class="qopt" onclick="quizCheck(5,0)">Ordenar o array primeiro</button>
+  <button class="qopt" onclick="quizCheck(5,1)">Usar map para guardar o que já passou</button>
+  <button class="qopt" onclick="quizCheck(5,2)">Usar recursão</button>
+  <button class="qopt" onclick="quizCheck(5,3)">Dividir o array ao meio</button>
+  <div class="qfb" id="qfb-5"></div>
+</div>`}
+
+]},
+]; // end modules
+
+/* ─────────── QUIZ ENGINE ─────────── */
+const quizAnswers={0:2,1:3,2:1,3:1,4:1,5:1};
+const quizFeedback={
+  0:'Correto! Um loop que passa por cada elemento → O(n). Pior caso: o alvo está no final.',
+  1:'Correto! Dois loops aninhados, ambos de 0 a n. n × n = n². → O(n²).',
+  2:'Map! vistos[id] é O(1). For range no slice é O(n) — 1 milhão de verificações por voto.',
+  3:'O(n)! Dois loops em sequência = O(n) + O(n) = O(2n). Big O ignora constantes → O(n).',
+  4:'Busca binária assume array ordenado. Sem ordem, as comparações não fazem sentido.',
+  5:'Map! Calcula complemento (alvo - v) e verifica no map em O(1). Evita o loop interno.'
+};
+const quizState={};
+function quizCheck(qi,oi){
+  if(quizState[qi]!==undefined)return;
+  quizState[qi]=oi;
+  const fb=document.getElementById('qfb-'+qi);
+  const qq=document.getElementById('qq-'+qi);
+  const btns=qq.querySelectorAll('.qopt');
+  const correct=quizAnswers[qi];
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct)b.classList.add('ok');
+    else if(i===oi&&oi!==correct)b.classList.add('err');
+  });
+  fb.className='qfb show '+(oi===correct?'ok':'err');
+  fb.textContent=oi===correct?quizFeedback[qi]:'Não é essa — '+quizFeedback[qi];
+}
+
+/* ─────────── ENGINE ─────────── */
+let slides=[], cur=0;
+function buildSlides(){
+  modules.forEach((mod,mi)=>{
+    mod.slides.forEach((sl,si)=>{
+      slides.push({modId:mod.id,modLabel:mod.label,mi,si,total:mod.slides.length,...sl});
+    });
+  });
+}
+function buildSidebar(){
+  const nav=document.getElementById('sb-nav');
+  modules.forEach((mod,mi)=>{
+    const sec=document.createElement('div');
+    sec.className='sb-section';
+    const lbl=document.createElement('div');
+    lbl.className='sb-section-label';
+    lbl.textContent=String(mi+1).padStart(2,'0')+' — '+mod.label;
+    sec.appendChild(lbl);
+    mod.slides.forEach((sl,si)=>{
+      const idx=slides.findIndex(s=>s.modId===mod.id&&s.si===si);
+      const btn=document.createElement('button');
+      btn.className='sb-btn';
+      btn.id='sbtn-'+mod.id+'-'+si;
+      btn.innerHTML=sl.title+'<span class="num">'+String(si+1).padStart(2,'0')+'</span>';
+      btn.onclick=()=>goTo(idx);
+      sec.appendChild(btn);
+    });
+    nav.appendChild(sec);
+  });
+}
+function goTo(i){
+  if(i<0||i>=slides.length)return;
+  cur=i;
+  const s=slides[cur];
+  // update topbar
+  document.getElementById('tb-title').textContent=s.modLabel+' — '+s.title;
+  document.getElementById('tb-count').textContent=(cur+1)+'/'+slides.length;
+  document.getElementById('btn-prev').disabled=cur===0;
+  document.getElementById('btn-next').disabled=cur===slides.length-1;
+  document.getElementById('prog-fill').style.width=Math.round((cur+1)/slides.length*100)+'%';
+  // sidebar active
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  const ab=document.getElementById('sbtn-'+s.modId+'-'+s.si);
+  if(ab){ab.classList.add('active');ab.scrollIntoView({block:'nearest'});}
+  // content
+  const c=document.getElementById('content');
+  c.innerHTML='<div class="slide active">'+s.html+nav_footer()+'</div>';
+  c.scrollTop=0;
+  // init sort if present
+  if(document.getElementById('sBars'))sInit();
+}
+function nav_footer(){
+  return '<div class="nav-foot">'+(cur>0?'<button class="nf-btn" onclick="prev()">← anterior</button>':'<span></span>')+(cur<slides.length-1?'<button class="nf-btn" onclick="next()">próximo →</button>':'<span></span>')+'</div>';
+}
+function prev(){goTo(cur-1);}
+function next(){goTo(cur+1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
+
+/* ─────────── SORT VIZ ─────────── */
+let sArr=[],sSteps=[],sStepIdx=0,sAlgo='';
+function sInit(){sArr=[6,3,8,1,9,2,7,4,5];sSteps=[];sStepIdx=0;sAlgo='';sRender(sArr,[],[]);const i=document.getElementById('sInfo');if(i)i.textContent='escolha um algoritmo acima';}
+function sRender(arr,cmp,done){
+  const el=document.getElementById('sBars');if(!el)return;
+  const mx=Math.max(...arr);
+  el.innerHTML=arr.map((v,i)=>{
+    let c='sb ';
+    if(done.includes(i))c+='sb-done';
+    else if(cmp.length&&cmp[0]===i&&cmp.length>1)c+='sb-piv';
+    else if(cmp.includes(i))c+='sb-cmp';
+    else c+='sb-def';
+    return '<div class="'+c+'" style="height:'+Math.round(v/mx*86)+'px">'+v+'</div>';
+  }).join('');
+}
+function setSAlgo(a){
+  sAlgo=a;sArr=[6,3,8,1,9,2,7,4,5];sSteps=[];sStepIdx=0;
+  if(a==='bubble')sBubble([...sArr]);
+  if(a==='merge')sMerge([...sArr]);
+  if(a==='quick')sQuick([...sArr],0,sArr.length-1);
+  sRender(sArr,[],[]);
+  const i=document.getElementById('sInfo');if(i)i.textContent=a+' — '+sSteps.length+' passos. pressione ▶';
+}
+function sStep(){
+  if(!sAlgo){const i=document.getElementById('sInfo');if(i)i.textContent='escolha um algoritmo primeiro';return;}
+  if(sStepIdx>=sSteps.length){sRender(sArr,[],sArr.map((_,i)=>i));const i=document.getElementById('sInfo');if(i)i.textContent='ordenação completa!';return;}
+  const s=sSteps[sStepIdx++];sRender(s.arr,s.cmp||[],s.done||[]);
+  const i=document.getElementById('sInfo');if(i)i.textContent='['+sStepIdx+'/'+sSteps.length+'] '+s.info;
+}
+function sReset(){sInit();}
+function sBubble(arr){const n=arr.length;for(let i=0;i<n-1;i++){for(let j=0;j<n-1-i;j++){sSteps.push({arr:[...arr],cmp:[j,j+1],done:[...Array(i).keys()].map(k=>n-1-k),info:'comparando '+arr[j]+' e '+arr[j+1]});if(arr[j]>arr[j+1]){[arr[j],arr[j+1]]=[arr[j+1],arr[j]];sSteps.push({arr:[...arr],cmp:[j,j+1],done:[...Array(i).keys()].map(k=>n-1-k),info:'trocou '+arr[j+1]+' ↔ '+arr[j]});}}sSteps.push({arr:[...arr],cmp:[],done:[...Array(i+1).keys()].map(k=>n-1-k),info:arr[n-1-i]+' chegou ao lugar final'});}}
+function sMerge(arr){function mg(a,l,m,r){const L=a.slice(l,m+1),R=a.slice(m+1,r+1);let i=0,j=0,k=l;while(i<L.length&&j<R.length){sSteps.push({arr:[...a],cmp:[l+i,m+1+j],done:[],info:'merge: '+L[i]+' vs '+R[j]});if(L[i]<=R[j])a[k++]=L[i++];else a[k++]=R[j++];}while(i<L.length)a[k++]=L[i++];while(j<R.length)a[k++]=R[j++];sSteps.push({arr:[...a],cmp:[],done:[],info:'subarray ['+l+'..'+r+'] mergeado'});}function ms(a,l,r){if(l>=r)return;const m=Math.floor((l+r)/2);ms(a,l,m);ms(a,m+1,r);mg(a,l,m,r);}const a=[...arr];ms(a,0,a.length-1);}
+function sQuick(arr,lo,hi){if(lo>=hi)return;const pv=arr[hi];let i=lo-1;sSteps.push({arr:[...arr],cmp:[hi],done:[],info:'pivot = '+pv});for(let j=lo;j<hi;j++){sSteps.push({arr:[...arr],cmp:[j,hi],done:[],info:arr[j]+'<='+pv+'?'});if(arr[j]<=pv){i++;[arr[i],arr[j]]=[arr[j],arr[i]];sSteps.push({arr:[...arr],cmp:[i,j],done:[],info:'trocou '+arr[j]+' e '+arr[i]});}}[arr[i+1],arr[hi]]=[arr[hi],arr[i+1]];const pi=i+1;sSteps.push({arr:[...arr],cmp:[],done:[pi],info:'pivot '+arr[pi]+' na posição certa'});sQuick(arr,lo,pi-1);sQuick(arr,pi+1,hi);}
+
+/* ─── INIT ─── */
+buildSlides();
+buildSidebar();
+goTo(0);
+</script>
+</body>
+</html>
